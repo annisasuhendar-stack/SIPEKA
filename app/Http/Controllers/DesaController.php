@@ -9,14 +9,17 @@ use Illuminate\Http\Request;
 class DesaController extends Controller
 {
     public function index()
-    {
-        $desas = Desa::with('kecamatan')
-                    ->orderBy('nama_desa')
-                    ->get();
+{
+    // Mengurutkan berdasarkan nama kecamatan di tabel relasi, lalu nama desa
+    $desas = Desa::with('kecamatan')
+        ->join('kecamatans', 'desas.kecamatan_id', '=', 'kecamatans.id')
+        ->orderBy('kecamatans.nama_kecamatan', 'asc') // Urutkan Kecamatan A-Z
+        ->orderBy('desas.nama_desa', 'asc')           // Urutkan Desa A-Z dalam kecamatan yang sama
+        ->select('desas.*')                            // Ambil hanya data dari tabel desas
+        ->get(); // atau ->paginate(10) jika menggunakan pagination
 
-        return view('desa.index', compact('desas'));
-    }
-
+    return view('desa.index', compact('desas'));
+}
     public function create()
     {
         $kecamatans = Kecamatan::orderBy('nama_kecamatan')->get();
