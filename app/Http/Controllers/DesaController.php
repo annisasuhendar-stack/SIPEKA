@@ -10,13 +10,13 @@ class DesaController extends Controller
 {
     public function index()
 {
-    // Mengurutkan berdasarkan nama kecamatan di tabel relasi, lalu nama desa
+    // Ambil data desa beserta relasi kecamatan, lalu urutkan lewat Collection Laravel
     $desas = Desa::with('kecamatan')
-        ->join('kecamatans', 'desas.kecamatan_id', '=', 'kecamatans.id')
-        ->orderBy('kecamatans.nama_kecamatan', 'asc') // Urutkan Kecamatan A-Z
-        ->orderBy('desas.nama_desa', 'asc')           // Urutkan Desa A-Z dalam kecamatan yang sama
-        ->select('desas.*')                            // Ambil hanya data dari tabel desas
-        ->get(); // atau ->paginate(10) jika menggunakan pagination
+        ->get()
+        ->sortBy([
+            fn ($a, $b) => ($a->kecamatan->nama_kecamatan ?? '') <=> ($b->kecamatan->nama_kecamatan ?? ''),
+            fn ($a, $b) => $a->nama_desa <=> $b->nama_desa,
+        ]);
 
     return view('desa.index', compact('desas'));
 }
