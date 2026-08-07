@@ -1,9 +1,12 @@
 FROM php:8.3-apache
 
-# Install dependencies & PHP extensions
+# Install dependencies & PHP extensions (termasuk PostgreSQL driver)
 RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libonig-dev libxml2-dev libzip-dev zip unzip \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    git curl libpng-dev libonig-dev libxml2-dev libzip-dev zip unzip libpq-dev \
+    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Enable Apache mod_rewrite for Laravel routing
+RUN a2enmod rewrite
 
 # Get Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
