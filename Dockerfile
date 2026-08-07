@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -40,7 +40,6 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/apache2.conf
 
-# === TAMBAHKAN BARIS INI AGAR PORT NYA DINAMIS MENGIKUTI RAILWAY ===
 RUN sed -i "s/80/\${PORT}/g" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE ${PORT}
