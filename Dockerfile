@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install dependencies
+# Install dependencies & libzip-dev
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -32,7 +32,10 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Sesuaikan port Apache dengan port dinamis dari Railway
+# Sesuaikan port Apache dengan port dinamis Railway
 RUN sed -i "s/80/\${PORT}/g" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE ${PORT}
+
+# Perintah wajib agar container aktif menjalankan Apache foreground
+CMD ["apache2-foreground"]
