@@ -2,6 +2,7 @@
 nixPkgs = ["php82", "composer"]
 
 [phases.build]
+env = { COMPOSER_ALLOW_SUPERUSER = "1" }
 cmds = [
     "composer install --no-dev --optimize-autoloader --ignore-platform-reqs"
 ]
