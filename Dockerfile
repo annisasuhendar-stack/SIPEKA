@@ -25,10 +25,10 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Configure Apache to listen on Railway's PORT environment variable
-RUN sed -i "s/80/8080/g" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
-ENV PORT=8080
-EXPOSE 8080
+# Bind Apache dynamically to Railway's injected $PORT
+RUN sed -i "s/80/\${PORT}/g" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
+
+EXPOSE ${PORT}
 
 # Run migrations and start Apache
 CMD php artisan migrate --force && apache2-foreground
