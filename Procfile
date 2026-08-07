@@ -1,1 +1,1 @@
-web: vendor/bin/heroku-php-nginx -docroot public/
+web: vendor/bin/heroku-php-nginx -p $PORT public/
