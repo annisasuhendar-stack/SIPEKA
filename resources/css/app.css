@@ -1,0 +1,23 @@
+.sidebar{
+    min-height:100vh;
+    background:#146c43;
+    box-shadow:3px 0 12px rgba(0,0,0,.15);
+}
+
+.sidebar a{
+    color:#fff;
+    padding:12px 15px;
+    border-radius:10px;
+    margin-bottom:6px;
+    display:block;
+    transition:.3s;
+}
+
+.sidebar a:hover{
+    background:#ffffff22;
+    padding-left:22px;
+}
+
+.sidebar small{
+    letter-spacing:1px;
+}
