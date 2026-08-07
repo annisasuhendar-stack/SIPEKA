@@ -1,0 +1,12 @@
+{
+  "providers": ["php"],
+  "php": {
+    "extensions": [
+      "pdo_pgsql",
+      "pgsql",
+      "pdo",
+      "zip",
+      "mbstring"
+    ]
+  }
+}
