@@ -15,7 +15,7 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 
 // Dynamic Dropdown Route (diarahkan ke PopulasiTernakController)
 Route::get('/get-desa/{kecamatan_id}', [PopulasiTernakController::class, 'getDesa'])->name('get.desa');
-
+Route::get('/populasi/export-excel', [PopulasiTernakController::class, 'exportExcel'])->name('populasi.export');
 Route::resource('populasi', PopulasiTernakController::class);
 Route::resource('layanan', LayananController::class);
 Route::resource('desa', DesaController::class);

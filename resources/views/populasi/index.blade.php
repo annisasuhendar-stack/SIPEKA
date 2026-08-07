@@ -4,12 +4,20 @@
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Data Populasi Ternak</h2>
 
-        <a href="{{ route('populasi.create') }}" class="btn btn-success">
-            + Tambah Data
-        </a>
+        <div>
+            <!-- TOMBOL EXPORT EXCEL -->
+            <a href="{{ route('populasi.export') }}" class="btn btn-success me-2">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+
+            <!-- TOMBOL TAMBAH DATA -->
+            <a href="{{ route('populasi.create') }}" class="btn btn-primary">
+                + Tambah Data
+            </a>
+        </div>
     </div>
 
 
@@ -43,9 +51,11 @@
 
                 <td>{{ $loop->iteration }}</td>
 
-                <td>{{ $item->kecamatan }}</td>
+                <!-- DIPERBAIKI: Mengambil nama dari relasi model -->
+                <td>{{ $item->kecamatan->nama_kecamatan ?? '-' }}</td>
 
-                <td>{{ $item->desa }}</td>
+                <!-- DIPERBAIKI: Mengambil nama dari relasi model -->
+                <td>{{ $item->desa->nama_desa ?? '-' }}</td>
 
                 <td>{{ $item->jenis_ternak }}</td>
 

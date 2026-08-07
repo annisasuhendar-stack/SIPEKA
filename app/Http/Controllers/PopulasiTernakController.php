@@ -6,6 +6,8 @@ use App\Models\Kecamatan;
 use App\Models\Desa;
 use App\Models\PopulasiTernak;
 use Illuminate\Http\Request;
+use App\Exports\PopulasiTernakExport; // Namespace untuk export excel
+use Maatwebsite\Excel\Facades\Excel;
 
 class PopulasiTernakController extends Controller
 {
@@ -21,13 +23,11 @@ class PopulasiTernakController extends Controller
     public function create()
     {
         $kecamatans = Kecamatan::orderBy('nama_kecamatan')->get();
-        // $desas dikosongkan saat render awal agar dropdown desa menunggu kecamatan dipilih
         $desas = collect(); 
 
         return view('populasi.create', compact('kecamatans', 'desas'));
     }
 
-    // Method baru untuk AJAX Dependent Dropdown
     public function getDesa($kecamatan_id)
     {
         $desas = Desa::where('kecamatan_id', $kecamatan_id)
@@ -60,5 +60,11 @@ class PopulasiTernakController extends Controller
 
         return redirect()->route('populasi.index')
             ->with('success', 'Data populasi berhasil dihapus!');
+    }
+
+    // --- TAMBAHAN METHOD EXPORT EXCEL ---
+    public function exportExcel()
+    {
+        return Excel::download(new PopulasiTernakExport, 'data-populasi-ternak.xlsx');
     }
 }
