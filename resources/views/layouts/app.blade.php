@@ -113,38 +113,40 @@
         <div class="sidebar-title">SIPEKA</div>
         <span class="sidebar-subtitle">Sistem Informasi Pelayanan Bidang Peternakan</span>
 
-        <hr class="sidebar-hr">
+        <<hr class="sidebar-hr">
 
-        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
-            📊 Dashboard
-        </a>
+<span class="sidebar-section-label">DATA PETERNAKAN</span>
 
-        <hr class="sidebar-hr">
+<a href="{{ url('/populasi') }}" class="{{ request()->is('populasi*') ? 'active' : '' }}">
+    🐄 Populasi Ternak
+</a>
 
-        <span class="sidebar-section-label">DATA PETERNAKAN</span>
-        <a href="{{ url('/populasi') }}" class="{{ request()->is('populasi*') ? 'active' : '' }}">
-            🐄 Populasi Ternak
-        </a>
-        <a href="{{ route('inseminasi.index') }}" class="{{ request()->routeIs('inseminasi.*') ? 'active' : '' }}">
-            💉 Inseminasi Buatan
-        </a>
-        <a href="{{ route('pengobatan.index') }}" class="{{ request()->routeIs('pengobatan.*') ? 'active' : '' }}">
-            🏥 Pengobatan & Vaksinasi
-        </a>
+<hr class="sidebar-hr">
 
-        <hr class="sidebar-hr">
+<span class="sidebar-section-label">PELAYANAN TEKNIS</span>
 
-        <span class="sidebar-section-label">PELAYANAN</span>
-        <a href="#">📄 SKKH</a>
-        <a href="#">📑 Surat Rekomendasi Peternakan</a>
-        <a href="#">📜 Surat Keterangan Usaha</a>
-        <a href="#">🏢 Rekomendasi NKV</a>
-        <a href="#">✅ Sertifikasi GBP/GHP/GFP</a>
+<a href="{{ route('inseminasi.index') }}" class="{{ request()->routeIs('inseminasi.*') ? 'active' : '' }}">
+    💉 Inseminasi Buatan
+</a>
 
-        <hr class="sidebar-hr">
+<a href="{{ route('pengobatan.index') }}" class="{{ request()->routeIs('pengobatan.*') ? 'active' : '' }}">
+    🏥 Pengobatan & Vaksinasi
+</a>
 
-        <a href="#">🖼️ Galeri</a>
-    </div>
+<hr class="sidebar-hr">
+
+<span class="sidebar-section-label">PELAYANAN ADMINISTRASI</span>
+
+<a href="#">📄 SKKH</a>
+<a href="#">📜 Surat Keterangan Usaha</a>
+<a href="#">📑 Surat Rekomendasi Peternakan</a>
+<a href="#">🏢 Rekomendasi NKV</a>
+<a href="#">✅ Sertifikasi GBP/GHP/GFP</a>
+
+<hr class="sidebar-hr">
+
+<a href="#">🖼️ Galeri</a>
+
 
     <!-- MAIN CONTENT AREA -->
     <div class="main-content">
