@@ -6,7 +6,8 @@ use App\Models\PopulasiTernak;
 use App\Models\Kecamatan;
 use App\Models\Desa;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Schema;       
+use Illuminate\Database\Schema\Blueprint;
 class PopulasiTernakController extends Controller
 {
     public function index()
