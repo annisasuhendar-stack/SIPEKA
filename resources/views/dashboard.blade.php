@@ -197,7 +197,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         var dataPopulasi = {{ json_encode($dataPopulasi ?? [0, 0, 0, 0]) }};
         var dataSkkh     = {{ json_encode($dataSkkh ?? [0, 0, 0, 0, 0, 0]) }};
-        var dataIb       = {{ json_encode($dataIb ?? [0, 0, 0]) }};
+        var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0])) }};
 
         // 1. Chart Populasi
         var optionsPopulasi = {
@@ -219,21 +219,30 @@
         var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh);
         chartSkkh.render();
 
-        // 3. Chart IB
+        // 3. Chart IB (Diset ulang dimensinya)
         var optionsIb = {
-            chart: { type: 'pie', height: 260 },
+            chart: { 
+                type: 'pie', 
+                height: 260,
+                width: '100%'
+            },
             series: dataIb,
             labels: ['Sapi Perah', 'Sapi Potong', 'Kambing'],
-            colors: ['#0dcaf0', '#ffc107', '#6c757d']
+            colors: ['#0dcaf0', '#ffc107', '#6c757d'],
+            noData: {
+                text: 'Memuat data...'
+            }
         };
         var chartIb = new ApexCharts(document.querySelector("#chartIb"), optionsIb);
         chartIb.render();
 
-        // Trik khusus: Force render Ulang Chart saat Carousel Diganti
+        // Solusi Utama Carousel Bootstrap: Render ulang saat slide berganti
         var carouselEl = document.getElementById('dashboardCarousel');
         if (carouselEl) {
-            carouselEl.addEventListener('slid.bs.carousel', function () {
+            carouselEl.addEventListener('slid.bs.carousel', function (event) {
+                // Paksa ApexCharts menghitung ulang ukuran kontainer
                 window.dispatchEvent(new Event('resize'));
+                chartIb.updateOptions({ chart: { height: 260 } });
             });
         }
     });
