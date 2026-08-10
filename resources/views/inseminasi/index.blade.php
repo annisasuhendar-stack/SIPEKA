@@ -7,7 +7,7 @@
 
     <div>
         <a href="{{ route('inseminasi.export') }}" class="btn btn-success me-2">
-            📊 Export Excel
+            Export Excel
         </a>
         <a href="{{ route('inseminasi.create') }}" class="btn btn-primary">
             + Tambah Data
