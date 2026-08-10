@@ -9,10 +9,10 @@ class InseminasiBuatanController extends Controller
 {
     public function index()
     {
-        $data = InseminasiBuatan::latest()->get();
+        $inseminasi = InseminasiBuatan::latest()->get();
 
-        return view('inseminasi.index', compact('data'));
-    }
+    return view('inseminasi.index', compact('inseminasi'));
+}
 
     public function create()
     {
