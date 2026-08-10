@@ -5,11 +5,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold text-success m-0">🏥 Data Pengobatan & Vaksinasi</h4>
         <div>
-            <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                ➕ Tambah Data
-            </button>
+           
+            <button>
             <a href="{{ route('pengobatan.export') }}" class="btn btn-outline-success btn-sm">
-                📥 Export Excel
+                Export Excel
+            </button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                Tambah Data
             </a>
         </div>
     </div>
