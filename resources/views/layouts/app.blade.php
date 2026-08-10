@@ -147,7 +147,7 @@
 
 <a href="#">🖼️ Galeri</a>
 
-
+</div>
     <!-- MAIN CONTENT AREA -->
     <div class="main-content">
         <!-- TOP NAVBAR -->
