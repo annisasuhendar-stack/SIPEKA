@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Models\InseminasiBuatan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\InseminasiBuatanExport; // Ditambahkan titik koma (;)
-use Maatwebsite\Excel\Facades\Excel;    // Ditambahkan Facade Excel
+
 
 class InseminasiBuatanController extends Controller
 {
