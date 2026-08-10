@@ -32,6 +32,8 @@
             flex-shrink: 0;
             padding: 20px 15px;
             box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
         }
 
         .custom-sidebar a {
@@ -43,9 +45,12 @@
             margin-bottom: 4px;
             font-size: 0.9rem;
             transition: all 0.2s ease;
+            position: relative;
+            z-index: 101;
+            cursor: pointer !important;
         }
 
-        .custom-sidebar a:hover {
+        .custom-sidebar a:hover, .custom-sidebar a.active {
             background-color: rgba(255, 255, 255, 0.2) !important;
             padding-left: 18px;
         }
@@ -110,47 +115,35 @@
 
         <hr class="sidebar-hr">
 
-        <a href="{{ url('/dashboard') }}">
+        <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
             📊 Dashboard
         </a>
 
         <hr class="sidebar-hr">
 
         <span class="sidebar-section-label">DATA PETERNAKAN</span>
-        <a href="{{ url('/populasi') }}">
+        <a href="{{ url('/populasi') }}" class="{{ request()->is('populasi*') ? 'active' : '' }}">
             🐄 Populasi Ternak
         </a>
-        <a href="{{ route('inseminasi.index') }}">
-    💉 Inseminasi Buatan
-</a>
-        <a href="#">
+        <a href="{{ route('inseminasi.index') }}" class="{{ request()->routeIs('inseminasi.*') ? 'active' : '' }}">
+            💉 Inseminasi Buatan
+        </a>
+        <a href="{{ route('pengobatan.index') }}" class="{{ request()->routeIs('pengobatan.*') ? 'active' : '' }}">
             🏥 Pengobatan & Vaksinasi
         </a>
 
         <hr class="sidebar-hr">
 
         <span class="sidebar-section-label">PELAYANAN</span>
-        <a href="#">
-            📄 SKKH
-        </a>
-        <a href="#">
-            📑 Surat Rekomendasi Peternakan
-        </a>
-        <a href="#">
-            📜 Surat Keterangan Usaha
-        </a>
-        <a href="#">
-            🏢 Rekomendasi NKV
-        </a>
-        <a href="#">
-            ✅ Sertifikasi GBP/GHP/GFP
-        </a>
+        <a href="#">📄 SKKH</a>
+        <a href="#">📑 Surat Rekomendasi Peternakan</a>
+        <a href="#">📜 Surat Keterangan Usaha</a>
+        <a href="#">🏢 Rekomendasi NKV</a>
+        <a href="#">✅ Sertifikasi GBP/GHP/GFP</a>
 
         <hr class="sidebar-hr">
 
-        <a href="#">
-            🖼️ Galeri
-        </a>
+        <a href="#">🖼️ Galeri</a>
     </div>
 
     <!-- MAIN CONTENT AREA -->
