@@ -43,26 +43,30 @@ class DashboardController extends Controller
             }
         }
 
-        // 5. Data Grafik Inseminasi Buatan (IB)
-$dataIb = [0, 0, 0]; // Order: [Sapi, Kambing, Domba/Lainnya]
+       // 5. Data Grafik Inseminasi Buatan (IB)
+$dataIb = [0, 0, 0, 0]; // Order: [Sapi, Kambing, Domba, Kerbau]
 if ($ibTable) {
-    // Sapi: Menghitung semua data yang mengandung kata 'Sapi' (Sapi, Sapi Perah, Sapi Potong)
+    // 1. Sapi
     $dataIb[0] = DB::table($ibTable)
         ->where('jenis_hewan', 'ILIKE', '%Sapi%')
         ->orWhere('jenis_hewan', 'LIKE', '%Sapi%')
         ->count();
 
-    // Kambing: Menghitung semua data yang mengandung kata 'Kambing'
+    // 2. Kambing
     $dataIb[1] = DB::table($ibTable)
         ->where('jenis_hewan', 'ILIKE', '%Kambing%')
         ->orWhere('jenis_hewan', 'LIKE', '%Kambing%')
         ->count();
 
-    // Domba/Lainnya: Menghitung data yang mengandung kata 'Domba' atau 'Kerbau'
+    // 3. Domba
     $dataIb[2] = DB::table($ibTable)
         ->where('jenis_hewan', 'ILIKE', '%Domba%')
-        ->orWhere('jenis_hewan', 'ILIKE', '%Kerbau%')
         ->orWhere('jenis_hewan', 'LIKE', '%Domba%')
+        ->count();
+
+    // 4. Kerbau
+    $dataIb[3] = DB::table($ibTable)
+        ->where('jenis_hewan', 'ILIKE', '%Kerbau%')
         ->orWhere('jenis_hewan', 'LIKE', '%Kerbau%')
         ->count();
 }

@@ -219,7 +219,7 @@
         var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh);
         chartSkkh.render();
 
-        // 3. Render Chart IB (Pie Chart)
+        / 3. Render Chart IB (Pie Chart)
 var optionsIb = {
     chart: { 
         type: 'pie', 
@@ -227,8 +227,8 @@ var optionsIb = {
         width: '100%'
     },
     series: dataIb,
-    labels: ['Sapi', 'Kambing', 'Domba / Kerbau'], // <-- Disesuaikan
-    colors: ['#0dcaf0', '#ffc107', '#6c757d'],
+    labels: ['Sapi', 'Kambing', 'Domba', 'Kerbau'],
+    colors: ['#0dcaf0', '#ffc107', '#198754', '#6c757d'],
     noData: {
         text: 'Memuat data...'
     }
