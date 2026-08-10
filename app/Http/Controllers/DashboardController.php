@@ -44,19 +44,28 @@ class DashboardController extends Controller
         }
 
         // 5. Data Grafik Inseminasi Buatan (IB)
-        $dataIb = [0, 0, 0]; // Order: [Sapi Perah, Sapi Potong, Kambing]
-        if ($ibTable) {
-            $jenisIbList = ['Sapi Perah', 'Sapi Potong', 'Kambing'];
+$dataIb = [0, 0, 0]; // Order: [Sapi, Kambing, Domba/Lainnya]
+if ($ibTable) {
+    // Sapi: Menghitung semua data yang mengandung kata 'Sapi' (Sapi, Sapi Perah, Sapi Potong)
+    $dataIb[0] = DB::table($ibTable)
+        ->where('jenis_hewan', 'ILIKE', '%Sapi%')
+        ->orWhere('jenis_hewan', 'LIKE', '%Sapi%')
+        ->count();
 
-            foreach ($jenisIbList as $index => $jenis) {
-                $dataIb[$index] = DB::table($ibTable)
-                    ->where(function($q) use ($jenis) {
-                        $q->where('jenis_hewan', 'ILIKE', "%{$jenis}%")
-                          ->orWhere('jenis_hewan', 'LIKE', "%{$jenis}%");
-                    })
-                    ->count();
-            }
-        }
+    // Kambing: Menghitung semua data yang mengandung kata 'Kambing'
+    $dataIb[1] = DB::table($ibTable)
+        ->where('jenis_hewan', 'ILIKE', '%Kambing%')
+        ->orWhere('jenis_hewan', 'LIKE', '%Kambing%')
+        ->count();
+
+    // Domba/Lainnya: Menghitung data yang mengandung kata 'Domba' atau 'Kerbau'
+    $dataIb[2] = DB::table($ibTable)
+        ->where('jenis_hewan', 'ILIKE', '%Domba%')
+        ->orWhere('jenis_hewan', 'ILIKE', '%Kerbau%')
+        ->orWhere('jenis_hewan', 'LIKE', '%Domba%')
+        ->orWhere('jenis_hewan', 'LIKE', '%Kerbau%')
+        ->count();
+}
 
         // 6. Data Grafik SKKH per Bulan (Januari - Juni)
         $dataSkkh = [0, 0, 0, 0, 0, 0];

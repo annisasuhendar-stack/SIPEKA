@@ -219,20 +219,20 @@
         var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh);
         chartSkkh.render();
 
-        // 3. Chart IB (Diset ulang dimensinya)
-        var optionsIb = {
-            chart: { 
-                type: 'pie', 
-                height: 260,
-                width: '100%'
-            },
-            series: dataIb,
-            labels: ['Sapi Perah', 'Sapi Potong', 'Kambing'],
-            colors: ['#0dcaf0', '#ffc107', '#6c757d'],
-            noData: {
-                text: 'Memuat data...'
-            }
-        };
+        // 3. Render Chart IB (Pie Chart)
+var optionsIb = {
+    chart: { 
+        type: 'pie', 
+        height: 260,
+        width: '100%'
+    },
+    series: dataIb,
+    labels: ['Sapi', 'Kambing', 'Domba / Kerbau'], // <-- Disesuaikan
+    colors: ['#0dcaf0', '#ffc107', '#6c757d'],
+    noData: {
+        text: 'Memuat data...'
+    }
+};
         var chartIb = new ApexCharts(document.querySelector("#chartIb"), optionsIb);
         chartIb.render();
 
