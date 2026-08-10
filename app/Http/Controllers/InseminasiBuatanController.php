@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\InseminasiBuatan;
 use Illuminate\Http\Request;
-use App\Exports\InseminasiBuatanExport
+use App\Exports\InseminasiBuatanExport; // Ditambahkan titik koma (;)
+use Maatwebsite\Excel\Facades\Excel;    // Ditambahkan Facade Excel
+
 class InseminasiBuatanController extends Controller
 {
     public function index()
     {
-        $inseminasi = InseminasiBuatan::latest()->get();
+        // Variabel disesuaikan menjadi $data agar cocok dengan index.blade.php
+        $data = InseminasiBuatan::latest()->get();
 
-    return view('inseminasi.index', compact('inseminasi'));
-}
+        return view('inseminasi.index', compact('data'));
+    }
 
     public function create()
     {
@@ -65,10 +68,12 @@ class InseminasiBuatanController extends Controller
             ->route('inseminasi.index')
             ->with('success', 'Data inseminasi buatan berhasil diperbarui!');
     }
+
     public function export()
-{
-    return Excel::download(new InseminasiBuatanExport, 'data-inseminasi-buatan.xlsx');
-}
+    {
+        return Excel::download(new InseminasiBuatanExport, 'data-inseminasi-buatan.xlsx');
+    }
+
     public function destroy($id)
     {
         $data = InseminasiBuatan::findOrFail($id);
