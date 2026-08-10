@@ -113,7 +113,7 @@
         <div class="sidebar-title">SIPEKA</div>
         <span class="sidebar-subtitle">Sistem Informasi Pelayanan Bidang Peternakan</span>
 
-        <<hr class="sidebar-hr">
+        <hr class="sidebar-hr">
 
 <span class="sidebar-section-label">DATA PETERNAKAN</span>
 
