@@ -120,9 +120,9 @@
         <a href="{{ url('/populasi') }}">
             🐄 Populasi Ternak
         </a>
-        <a href="#">
-            💉 Inseminasi Buatan
-        </a>
+        <a href="{{ route('inseminasi.index') }}">
+    💉 Inseminasi Buatan
+</a>
         <a href="#">
             🏥 Pengobatan & Vaksinasi
         </a>
