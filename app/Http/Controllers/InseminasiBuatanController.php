@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InseminasiBuatan;
 use Illuminate\Http\Request;
+use App\Models\InseminasiBuatan;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use App\Exports\InseminasiBuatanExport; // Ditambahkan titik koma (;)
 use Maatwebsite\Excel\Facades\Excel;    // Ditambahkan Facade Excel
 
@@ -11,7 +13,7 @@ class InseminasiBuatanController extends Controller
 {
     public function index()
     {
-        // Buat tabel otomatis jika belum ada di database
+        // Buat tabel otomatis jika belum ada di database production
         if (!Schema::hasTable('inseminasi_buatans')) {
             Schema::create('inseminasi_buatans', function (Blueprint $table) {
                 $table->id();
