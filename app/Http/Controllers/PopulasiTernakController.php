@@ -10,12 +10,13 @@ use Illuminate\Http\Request;
 class PopulasiTernakController extends Controller
 {
     public function index()
-    {
-        // Eager loading relasi kecamatan dan desa
-        $populasi = PopulasiTernak::with(['kecamatan', 'desa'])->get();
-        return view('populasi.index', compact('populasi'));
-    }
+{
+    $data = PopulasiTernak::with(['kecamatan', 'desa'])
+        ->latest()
+        ->get();
 
+    return view('populasi.index', compact('data'));
+}
     public function create()
     {
         $kecamatans = Kecamatan::all();
