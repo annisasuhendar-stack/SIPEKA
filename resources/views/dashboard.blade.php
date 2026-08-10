@@ -195,54 +195,42 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var dataPopulasi = {{ json_encode($dataPopulasi ?? [0, 0, 0, 0]) }};
-        var dataSkkh     = {{ json_encode($dataSkkh ?? [0, 0, 0, 0, 0, 0]) }};
-        var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0])) }};
+        var dataPopulasi = {{ json_encode(array_map('intval', $dataPopulasi ?? [0, 0, 0, 0, 0, 0, 0])) }};
+        var dataSkkh     = {{ json_encode(array_map('intval', $dataSkkh ?? [0, 0, 0, 0, 0, 0])) }};
+        var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0, 0])) }};
 
-        // 1. Chart Populasi
-        var optionsPopulasi = {
+        // 1. Chart Populasi (Dengan Kategori Unggas Tambahan)
+        var chartPopulasi = new ApexCharts(document.querySelector("#chartPopulasi"), {
             chart: { type: 'bar', height: 260 },
-            series: [{ name: 'Jumlah', data: dataPopulasi }],
-            xaxis: { categories: ['Sapi', 'Kambing', 'Domba', 'Kerbau'] },
+            series: [{ name: 'Jumlah Data', data: dataPopulasi }],
+            xaxis: { categories: ['Sapi', 'Kambing', 'Domba', 'Kerbau', 'Ayam', 'Bebek', 'Itik'] },
             colors: ['#0d6efd']
-        };
-        var chartPopulasi = new ApexCharts(document.querySelector("#chartPopulasi"), optionsPopulasi);
+        });
         chartPopulasi.render();
 
         // 2. Chart SKKH
-        var optionsSkkh = {
+        var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), {
             chart: { type: 'line', height: 260 },
             series: [{ name: 'SKKH Terbit', data: dataSkkh }],
             xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'] },
             colors: ['#198754']
-        };
-        var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh);
+        });
         chartSkkh.render();
 
-        / 3. Render Chart IB (Pie Chart)
-var optionsIb = {
-    chart: { 
-        type: 'pie', 
-        height: 260,
-        width: '100%'
-    },
-    series: dataIb,
-    labels: ['Sapi', 'Kambing', 'Domba', 'Kerbau'],
-    colors: ['#0dcaf0', '#ffc107', '#198754', '#6c757d'],
-    noData: {
-        text: 'Memuat data...'
-    }
-};
-        var chartIb = new ApexCharts(document.querySelector("#chartIb"), optionsIb);
+        // 3. Chart IB (Pie Chart)
+        var chartIb = new ApexCharts(document.querySelector("#chartIb"), {
+            chart: { type: 'pie', height: 260, width: '100%' },
+            series: dataIb,
+            labels: ['Sapi', 'Kambing', 'Domba', 'Kerbau'],
+            colors: ['#0dcaf0', '#ffc107', '#198754', '#6c757d']
+        });
         chartIb.render();
 
-        // Solusi Utama Carousel Bootstrap: Render ulang saat slide berganti
+        // Refresh ApexCharts saat Carousel Bergeser
         var carouselEl = document.getElementById('dashboardCarousel');
         if (carouselEl) {
-            carouselEl.addEventListener('slid.bs.carousel', function (event) {
-                // Paksa ApexCharts menghitung ulang ukuran kontainer
+            carouselEl.addEventListener('slid.bs.carousel', function () {
                 window.dispatchEvent(new Event('resize'));
-                chartIb.updateOptions({ chart: { height: 260 } });
             });
         }
     });
