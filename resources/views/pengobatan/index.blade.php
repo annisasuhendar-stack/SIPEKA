@@ -5,16 +5,13 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold text-success m-0">🏥 Data Pengobatan & Vaksinasi</h4>
         <div>
-           
-            <button>
-            <a href="{{ route('pengobatan.export') }}" class="btn btn-outline-success btn-sm">
-                Export Excel
-            </button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                Tambah Data
-            </a>
+            <a href="{{ route('pengobatan.export') }}" class="btn btn-success me-2">Export Excel</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                + Tambah Data
+           </button>
         </div>
     </div>
-
+        
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
