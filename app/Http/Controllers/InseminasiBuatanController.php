@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InseminasiBuatan;
 use Illuminate\Http\Request;
-
+use App\Exports\InseminasiBuatanExport
 class InseminasiBuatanController extends Controller
 {
     public function index()
