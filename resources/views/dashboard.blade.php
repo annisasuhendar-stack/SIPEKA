@@ -195,7 +195,6 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Menerima data dinamis dari Controller via json_encode
         var dataPopulasi = {{ json_encode($dataPopulasi ?? [0, 0, 0, 0]) }};
         var dataSkkh     = {{ json_encode($dataSkkh ?? [0, 0, 0, 0, 0, 0]) }};
         var dataIb       = {{ json_encode($dataIb ?? [0, 0, 0]) }};
@@ -207,7 +206,8 @@
             xaxis: { categories: ['Sapi', 'Kambing', 'Domba', 'Kerbau'] },
             colors: ['#0d6efd']
         };
-        new ApexCharts(document.querySelector("#chartPopulasi"), optionsPopulasi).render();
+        var chartPopulasi = new ApexCharts(document.querySelector("#chartPopulasi"), optionsPopulasi);
+        chartPopulasi.render();
 
         // 2. Chart SKKH
         var optionsSkkh = {
@@ -216,7 +216,8 @@
             xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'] },
             colors: ['#198754']
         };
-        new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh).render();
+        var chartSkkh = new ApexCharts(document.querySelector("#chartSkkh"), optionsSkkh);
+        chartSkkh.render();
 
         // 3. Chart IB
         var optionsIb = {
@@ -225,7 +226,16 @@
             labels: ['Sapi Perah', 'Sapi Potong', 'Kambing'],
             colors: ['#0dcaf0', '#ffc107', '#6c757d']
         };
-        new ApexCharts(document.querySelector("#chartIb"), optionsIb).render();
+        var chartIb = new ApexCharts(document.querySelector("#chartIb"), optionsIb);
+        chartIb.render();
+
+        // Trik khusus: Force render Ulang Chart saat Carousel Diganti
+        var carouselEl = document.getElementById('dashboardCarousel');
+        if (carouselEl) {
+            carouselEl.addEventListener('slid.bs.carousel', function () {
+                window.dispatchEvent(new Event('resize'));
+            });
+        }
     });
 </script>
 @endsection
