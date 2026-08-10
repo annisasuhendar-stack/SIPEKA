@@ -11,7 +11,17 @@ class InseminasiBuatanController extends Controller
 {
     public function index()
     {
-        // Variabel disesuaikan menjadi $data agar cocok dengan index.blade.php
+        // Buat tabel otomatis jika belum ada di database
+        if (!Schema::hasTable('inseminasi_buatans')) {
+            Schema::create('inseminasi_buatans', function (Blueprint $table) {
+                $table->id();
+                $table->string('jenis_hewan')->nullable();
+                $table->string('identitas_pemilik')->nullable();
+                $table->text('alamat')->nullable();
+                $table->timestamps();
+            });
+        }
+
         $data = InseminasiBuatan::latest()->get();
 
         return view('inseminasi.index', compact('data'));
