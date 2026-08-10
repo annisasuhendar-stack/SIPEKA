@@ -191,7 +191,6 @@
         </div>
     </div>
 </div>
-@endsection
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
@@ -199,6 +198,7 @@
         // Menerima data dinamis dari Controller via json_encode
         var dataPopulasi = {{ json_encode($dataPopulasi ?? [0, 0, 0, 0]) }};
         var dataSkkh     = {{ json_encode($dataSkkh ?? [0, 0, 0, 0, 0, 0]) }};
+        var dataIb       = {{ json_encode($dataIb ?? [0, 0, 0]) }};
 
         // 1. Chart Populasi
         var optionsPopulasi = {
@@ -221,10 +221,11 @@
         // 3. Chart IB
         var optionsIb = {
             chart: { type: 'pie', height: 260 },
-            series: [0, 0, 0],
+            series: dataIb,
             labels: ['Sapi Perah', 'Sapi Potong', 'Kambing'],
             colors: ['#0dcaf0', '#ffc107', '#6c757d']
         };
         new ApexCharts(document.querySelector("#chartIb"), optionsIb).render();
     });
 </script>
+@endsection
