@@ -10,13 +10,20 @@ use Illuminate\Http\Request;
 class PopulasiTernakController extends Controller
 {
     public function index()
-{
-    $data = PopulasiTernak::with(['kecamatan', 'desa'])
-        ->latest()
-        ->get();
+    {
+        // Otomatis buat kolom 'bulan' di database jika belum ada
+        if (!Schema::hasColumn('populasi_ternaks', 'bulan')) {
+            Schema::table('populasi_ternaks', function (Blueprint $table) {
+                $table->string('bulan')->nullable()->after('jumlah');
+            });
+        }
 
-    return view('populasi.index', compact('data'));
-}
+        $data = PopulasiTernak::with(['kecamatan', 'desa'])
+            ->latest()
+            ->get();
+
+        return view('populasi.index', compact('data'));
+    }
     public function create()
     {
         $kecamatans = Kecamatan::all();
@@ -30,6 +37,7 @@ class PopulasiTernakController extends Controller
             'desa_id'      => 'required',
             'jenis_ternak' => 'required',
             'jumlah'       => 'required|numeric',
+            'bulan'        => 'required',
             'tahun'        => 'required',
         ]);
 

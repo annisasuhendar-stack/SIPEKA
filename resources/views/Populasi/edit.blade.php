@@ -41,7 +41,20 @@
             <label for="jumlah" class="form-label">Jumlah</label>
             <input type="number" name="jumlah" class="form-control" value="{{ $populasi->jumlah }}" required>
         </div>
-
+<div class="mb-3">
+    <label for="bulan" class="form-label">Bulan</label>
+    <select name="bulan" id="bulan" class="form-control" required>
+        <option value="">-- Pilih Bulan --</option>
+        @php
+            $daftarBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        @endphp
+        @foreach($daftarBulan as $bln)
+            <option value="{{ $bln }}" {{ (old('bulan', $data->bulan ?? '') == $bln) ? 'selected' : '' }}>
+                {{ $bln }}
+            </option>
+        @endforeach
+    </select>
+</div>
         <div class="mb-3">
             <label for="tahun" class="form-label">Tahun</label>
             <input type="number" name="tahun" class="form-control" value="{{ $populasi->tahun }}" required>

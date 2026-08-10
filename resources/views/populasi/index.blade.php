@@ -37,6 +37,7 @@
                 <th>Desa</th>
                 <th>Jenis Ternak</th>
                 <th>Jumlah</th>
+                <th>Bulan</th>
                 <th>Tahun</th>
                 <th width="180">Aksi</th>
             </tr>
@@ -60,6 +61,7 @@
                 <td>{{ $item->jenis_ternak }}</td>
 
                 <td>{{ $item->jumlah }}</td>
+                <td>{{ $item->bulan ?? '-' }}</td>
 
                 <td>{{ $item->tahun }}</td>
 

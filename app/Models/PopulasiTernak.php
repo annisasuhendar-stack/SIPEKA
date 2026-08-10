@@ -11,6 +11,7 @@ class PopulasiTernak extends Model
         'desa_id',
         'jenis_ternak',
         'jumlah',
+        'bulan',
         'tahun'
     ];
 
