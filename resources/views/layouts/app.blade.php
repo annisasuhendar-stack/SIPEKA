@@ -142,8 +142,9 @@
 
 <span class="sidebar-section-label">PELAYANAN ADMINISTRASI</span>
 
-<a href="#">📄 SKKH</a>
-
+<a href="{{ route('skkh.index') }}">
+    📄 SKKH
+</a>
 <a href="#">📜 Surat Keterangan Usaha</a>
 
 <a href="#">📑 Surat Rekomendasi Peternakan</a>
