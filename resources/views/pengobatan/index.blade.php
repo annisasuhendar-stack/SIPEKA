@@ -466,22 +466,97 @@
 
 </div>
 </div>
-<!-- GRAFIK PENGOBATAN & VAKSINASI -->
+<!-- ========================================================= -->
+<!-- ANALISIS PENGOBATAN & VAKSINASI -->
+<!-- ========================================================= -->
+
+<!-- ========================================================= -->
+<!-- ANALISIS PENGOBATAN & VAKSINASI -->
+<!-- ========================================================= -->
+
 <div class="card border-0 shadow-sm mt-4">
+
     <div class="card-header bg-white border-0 py-3">
         <h5 class="fw-bold text-success mb-1">
-            📈 Tren Pengobatan & Vaksinasi per Bulan
+            📊 Analisis Pengobatan & Vaksinasi
         </h5>
 
         <small class="text-muted">
-            Jumlah pelayanan berdasarkan tanggal pelayanan
+            Analisis penyakit berdasarkan bulan dan jenis hewan
         </small>
     </div>
 
     <div class="card-body">
-        <div id="chartBulanan" style="min-height: 320px;"></div>
+
+        <!-- RINGKASAN -->
+        <div class="row g-3 mb-4">
+
+            <!-- Penyakit Terbanyak -->
+            <div class="col-md-4">
+                <div class="card border-0 bg-danger bg-opacity-10 h-100">
+                    <div class="card-body">
+                        <small class="text-muted">
+                            🦠 Penyakit Terbanyak
+                        </small>
+
+                        <h5 class="fw-bold text-danger mt-2 mb-0">
+                            {{ $penyakitTerbanyak ? $penyakitTerbanyak->jenis_penyakit : '-' }}
+                        </h5>
+
+                        @if($penyakitTerbanyak)
+                            <small class="text-muted">
+                                {{ $penyakitTerbanyak->total }} kasus
+                            </small>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Bulan Terbanyak -->
+            <div class="col-md-4">
+                <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                    <div class="card-body">
+                        <small class="text-muted">
+                            📅 Bulan Kasus Tertinggi
+                        </small>
+
+                        <h5 class="fw-bold text-primary mt-2 mb-0">
+                            {{ $namaBulanTerbanyak }}
+                        </h5>
+
+                        <small class="text-muted">
+                            {{ $jumlahKasusBulanTerbanyak }} kasus
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Hewan Terbanyak -->
+            <div class="col-md-4">
+                <div class="card border-0 bg-success bg-opacity-10 h-100">
+                    <div class="card-body">
+                        <small class="text-muted">
+                            🐄 Hewan Paling Banyak Ditangani
+                        </small>
+
+                        <h5 class="fw-bold text-success mt-2 mb-0">
+                            {{ $hewanTerbanyak }}
+                        </h5>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- GRAFIK -->
+        <div id="chartAnalisis" style="min-height: 350px;"></div>
+
     </div>
 </div>
+
 
 <!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -489,35 +564,39 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const dataBulanan = @json($dataBulanan ?? []);
+    const dataPenyakit = @json($dataPenyakit ?? []);
 
-    const bulan = [
-        'Jan', 'Feb', 'Mar', 'Apr',
-        'Mei', 'Jun', 'Jul', 'Agu',
-        'Sep', 'Okt', 'Nov', 'Des'];
+    const dataHewan = @json($dataHewan ?? []);
 
-    const chartElement = document.querySelector("#chartBulanan");
+    const labelHewan = @json($labelHewan ?? []);
+
+    const chartElement = document.querySelector("#chartAnalisis");
 
     if (chartElement) {
 
-        const chartBulanan = new ApexCharts(chartElement, {
+        const chartAnalisis = new ApexCharts(chartElement, {
+
             chart: {
-                type: 'line',
-                height: 320,
+                type: 'bar',
+                height: 350,
                 toolbar: {
                     show: true
                 }
             },
 
             series: [{
-                name: 'Jumlah Pelayanan',
-                data: dataBulanan
+                name: 'Jumlah Kasus',
+                data: dataHewan
             }],
 
             xaxis: {
-                categories: bulan,
+                categories: labelHewan,
                 title: {
-                    text: 'Bulan'
+                    text: 'Jenis Hewan - Penyakit'
+                },
+                labels: {
+                    rotate: -45,
+                    trim: true
                 }
             },
 
@@ -525,17 +604,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 min: 0,
                 forceNiceScale: true,
                 title: {
-                    text: 'Jumlah Pelayanan'
+                    text: 'Jumlah Kasus'
                 }
             },
 
-            stroke: {
-                curve: 'smooth',
-                width: 3
-            },
-
-            markers: {
-                size: 5
+            plotOptions: {
+                bar: {
+                    borderRadius: 5,
+                    distributed: true,
+                    columnWidth: '55%'
+                }
             },
 
             dataLabels: {
@@ -545,14 +623,16 @@ document.addEventListener("DOMContentLoaded", function () {
             tooltip: {
                 y: {
                     formatter: function (value) {
-                        return value + ' pelayanan';
+                        return value + ' kasus';
                     }
                 }
             }
+
         });
 
-        chartBulanan.render();
+        chartAnalisis.render();
     }
+
 });
 </script>
 @endsection
