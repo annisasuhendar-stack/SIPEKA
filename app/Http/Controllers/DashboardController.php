@@ -8,112 +8,75 @@ use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        // 1. Deteksi nama tabel populasi
-        $populasiTable = Schema::hasTable('populasi_ternaks') ? 'populasi_ternaks' : (Schema::hasTable('populasis') ? 'populasis' : null);
+    public function index()
+    {
+        // 1. Deteksi nama tabel populasi
+        $populasiTable = Schema::hasTable('populasi_ternaks') ? 'populasi_ternaks' : (Schema::hasTable('populasis') ? 'populasis' : null);
 
-        // 2. Deteksi nama tabel Inseminasi Buatan
-        $ibTable = null;
-        $possibleIbTables = ['inseminasi_buatans', 'inseminasis', 'inseminasi_buatan', 'inseminasi'];
-        foreach ($possibleIbTables as $tbl) {
-            if (Schema::hasTable($tbl)) {
-                $ibTable = $tbl;
-                break;
-            }
-        }
+        // 2. Deteksi nama tabel Inseminasi Buatan
+        $ibTable = null;
+        $possibleIbTables = ['inseminasi_buatans', 'inseminasis', 'inseminasi_buatan', 'inseminasi'];
+        foreach ($possibleIbTables as $tbl) {
+            if (Schema::hasTable($tbl)) {
+                $ibTable = $tbl;
+                break;
+            }
+        }
 
-        // Deteksi nama tabel Pengobatan
-        $pengobatanTable = Schema::hasTable('pengobatans') ? 'pengobatans' : (Schema::hasTable('pengobatan') ? 'pengobatan' : null);
+        // 3. Hitung Stat Cards
+        $totalPopulasi    = $populasiTable ? DB::table($populasiTable)->count() : 0;
+        $totalSkkh        = Schema::hasTable('skkhs') ? DB::table('skkhs')->count() : 0;
+        $totalIb          = $ibTable ? DB::table($ibTable)->count() : 0;
+        $totalPengobatan  = Schema::hasTable('pengobatans') ? DB::table('pengobatans')->count() : 0;
+        $totalNkv         = Schema::hasTable('nkvs') ? DB::table('nkvs')->count() : 0;
+        $totalSertifikasi = Schema::hasTable('sertifikasis') ? DB::table('sertifikasis')->count() : 0;
 
-        // 3. Hitung Stat Cards
-        $totalPopulasi     = $populasiTable ? DB::table($populasiTable)->count() : 0;
-        $totalSkkh         = Schema::hasTable('skkhs') ? DB::table('skkhs')->count() : 0;
-        $totalIb           = $ibTable ? DB::table($ibTable)->count() : 0;
-        $totalPengobatan   = $pengobatanTable ? DB::table($pengobatanTable)->count() : 0;
-        $totalNkv          = Schema::hasTable('nkvs') ? DB::table('nkvs')->count() : 0;
-        $totalSertifikasi  = Schema::hasTable('sertifikasis') ? DB::table('sertifikasis')->count() : 0;
+        // 4. Data Grafik Populasi Ternak (Ditambahkan Ayam, Bebek, Itik)
+        $dataPopulasi = [0, 0, 0, 0, 0, 0, 0];
+        if ($populasiTable) {
+            $jenisPopulasiList = ['Sapi', 'Kambing', 'Domba', 'Kerbau', 'Ayam', 'Bebek', 'Itik'];
+            foreach ($jenisPopulasiList as $index => $jenis) {
+                $dataPopulasi[$index] = DB::table($populasiTable)
+                    ->where(function($q) use ($jenis) {
+                        $q->where('jenis_ternak', 'ILIKE', "%{$jenis}%")
+                          ->orWhere('jenis_ternak', 'LIKE', "%{$jenis}%");
+                    })
+                    ->count();
+            }
+        }
 
-        // 4. Data Grafik Populasi Ternak (Ditambahkan Ayam, Bebek, Itik)
-        $dataPopulasi = [0, 0, 0, 0, 0, 0, 0];
-        if ($populasiTable) {
-            $jenisPopulasiList = ['Sapi', 'Kambing', 'Domba', 'Kerbau', 'Ayam', 'Bebek', 'Itik'];
-            foreach ($jenisPopulasiList as $index => $jenis) {
-                $dataPopulasi[$index] = DB::table($populasiTable)
-                    ->where(function($q) use ($jenis) {
-                        $q->where('jenis_ternak', 'ILIKE', "%{$jenis}%")
-                          ->orWhere('jenis_ternak', 'LIKE', "%{$jenis}%");
-                    })
-                    ->count();
-            }
-        }
+        // 5. Data Grafik Inseminasi Buatan (Sapi, Kambing, Domba, Kerbau)
+        $dataIb = [0, 0, 0, 0];
+        if ($ibTable) {
+            $jenisIbList = ['Sapi', 'Kambing', 'Domba', 'Kerbau'];
+            foreach ($jenisIbList as $index => $jenis) {
+                $dataIb[$index] = DB::table($ibTable)
+                    ->where(function($q) use ($jenis) {
+                        $q->where('jenis_hewan', 'ILIKE', "%{$jenis}%")
+                          ->orWhere('jenis_hewan', 'LIKE', "%{$jenis}%");
+                    })
+                    ->count();
+            }
+        }
 
-        // 5. Data Grafik Inseminasi Buatan (Sapi, Kambing, Domba, Kerbau)
-        $dataIb = [0, 0, 0, 0];
-        if ($ibTable) {
-            $jenisIbList = ['Sapi', 'Kambing', 'Domba', 'Kerbau'];
-            foreach ($jenisIbList as $index => $jenis) {
-                $dataIb[$index] = DB::table($ibTable)
-                    ->where(function($q) use ($jenis) {
-                        $q->where('jenis_hewan', 'ILIKE', "%{$jenis}%")
-                          ->orWhere('jenis_hewan', 'LIKE', "%{$jenis}%");
-                    })
-                    ->count();
-            }
-        }
+        // 6. Data Grafik SKKH per Bulan (Januari - Juni)
+        $dataSkkh = [0, 0, 0, 0, 0, 0];
+        if (Schema::hasTable('skkhs')) {
+            for ($m = 1; $m <= 6; $m++) {
+                $dataSkkh[$m - 1] = DB::table('skkhs')->whereMonth('created_at', $m)->count();
+            }
+        }
 
-        // 6. Data Grafik SKKH per Bulan (Januari - Juni)
-        $dataSkkh = [0, 0, 0, 0, 0, 0];
-        if (Schema::hasTable('skkhs')) {
-            for ($m = 1; $m <= 6; $m++) {
-                $dataSkkh[$m - 1] = DB::table('skkhs')->whereMonth('created_at', $m)->count();
-            }
-        }
-
-        // --- TAMBAHAN BARU UNTUK PENGOBATAN & PENYAKIT ---
-
-        // 7. Data Grafik Top 5 Penyakit (Untuk Slideshow Utama)
-        $labelsTopPenyakit = [];
-        $dataTopPenyakit = [];
-        if ($pengobatansTable) {
-            $kolomPenyakit = Schema::hasColumn($pengobatansTable, 'nama_penyakit') ? 'nama_penyakit' : 
-                             (Schema::hasColumn($pengobatansTable, 'penyakit') ? 'penyakit' : 'diagnosa');
-
-            $topPenyakit = DB::table('pengobatans') // Sesuaikan dengan nama tabel kamu
-    ->select('penyakit as penyakit', DB::raw('count(*) as total'))
-    ->whereNotNull('penyakit')
-    ->groupBy('penyakit')
-    ->orderByDesc('total')
-    ->limit(5)
-    ->get();
-
-            $labelsTopPenyakit = $topPenyakit->pluck('penyakit')->toArray();
-            $dataTopPenyakit = $topPenyakit->pluck('total')->toArray();
-        }
-
-        // 8. Data Grafik Tren Kasus Penyakit per Bulan (Januari - Desember untuk di dalam Tab)
-        $dataPengobatanBulanan = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        if ($pengobatansTable) {
-            for ($m = 1; $m <= 12; $m++) {
-                $dataPengobatanBulanan[$m - 1] = DB::table($pengobatansTable)
-                    ->whereMonth('created_at', $m)
-                    ->count();
-            }
-        }
-
-        return view('dashboard', compact(
-            'totalPopulasi',
-            'totalSkkh',
-            'totalIb',
-            'totalPengobatan',
-            'totalNkv',
-            'totalSertifikasi',
-            'dataPopulasi',
-            'dataIb',
-            'dataSkkh',
-            'labelsTopPenyakit',
-            'dataTopPenyakit',
-            'dataPengobatanBulanan'
-        ));
-    }
+        return view('dashboard', compact(
+            'totalPopulasi',
+            'totalSkkh',
+            'totalIb',
+            'totalPengobatan',
+            'totalNkv',
+            'totalSertifikasi',
+            'dataPopulasi',
+            'dataIb',
+            'dataSkkh'
+        ));
+    }
 }
