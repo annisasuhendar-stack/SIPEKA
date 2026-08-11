@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
 
 # Enable Apache mod_rewrite for Laravel routing
 RUN a2enmod rewrite
+# Increase PHP upload limit for SKKH documents
+RUN echo "upload_max_filesize=64M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=70M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Get Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
