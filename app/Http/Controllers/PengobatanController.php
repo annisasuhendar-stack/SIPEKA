@@ -10,30 +10,23 @@ use Maatwebsite\Excel\Facades\Excel;
 class PengobatanController extends Controller
 {
    public function index(Request $request)
-
+{
     $search = $request->input('search');
 
     $pengobatans = Pengobatan::when($search, function ($query, $search) {
         return $query->where('nama_pemilik', 'ILIKE', "%{$search}%")
                      ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
-                     ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
-    })->latest()->paginate(10);
+                     ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");})->latest()->paginate(10);
 // DATA GRAFIK PENGOBATAN & VAKSINASI PER BULAN
     $dataBulanan = [];
-
     for ($bulan = 1; $bulan <= 12; $bulan++) {
         $dataBulanan[] = Pengobatan::whereMonth('tanggal_pelayanan', $bulan)
-            ->count();
-    }
-
+            ->count(); }
     return view('pengobatan.index', compact(
         'pengobatans',
         'dataBulanan'
     ));
 }
-    return view('pengobatan.index', compact('pengobatans'));
-}
-
     public function store(Request $request)
 {
     $request->validate([
