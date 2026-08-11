@@ -8,6 +8,7 @@ use App\Http\Controllers\DesaController;
 use App\Http\Controllers\KecamatanController;
 use App\Http\Controllers\InseminasiBuatanController;
 use App\Http\Controllers\PengobatanController;
+use App\Http\Controllers\SkkhController;
 Route::get('/', function () {
     return redirect('/dashboard');
 });
@@ -28,3 +29,5 @@ Route::resource('desa', DesaController::class);
 Route::resource('kecamatan', KecamatanController::class);
 Route::resource('inseminasi', InseminasiBuatanController::class);
 Route::resource('pengobatan', PengobatanController::class);
+Route::resource('skkh', SkkhController::class)
+    ->except(['show', 'create', 'edit']);
