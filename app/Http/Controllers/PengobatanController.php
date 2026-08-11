@@ -19,19 +19,7 @@ class PengobatanController extends Controller
                      ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
     })->latest()->paginate(10);
 
-    // Data grafik kasus penyakit per bulan
-    $dataBulanan = [];
-
-    for ($bulan = 1; $bulan <= 12; $bulan++) {
-        $dataBulanan[] = Pengobatan::where('jenis_layanan', 'Pengobatan')
-            ->whereMonth('tanggal_pelayanan', $bulan)
-            ->count();
-    }
-
-    return view('pengobatan.index', compact(
-        'pengobatans',
-        'dataBulanan'
-    ));
+    return view('pengobatan.index', compact('pengobatans'));
 }
 
     public function store(Request $request)
