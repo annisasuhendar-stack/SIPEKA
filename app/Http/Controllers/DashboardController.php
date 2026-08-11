@@ -75,17 +75,17 @@ class DashboardController extends Controller
         // 7. Data Grafik Top 5 Penyakit (Untuk Slideshow Utama)
         $labelsTopPenyakit = [];
         $dataTopPenyakit = [];
-        if ($pengobatanTable) {
-            $kolomPenyakit = Schema::hasColumn($pengobatanTable, 'nama_penyakit') ? 'nama_penyakit' : 
-                             (Schema::hasColumn($pengobatanTable, 'penyakit') ? 'penyakit' : 'diagnosa');
+        if ($pengobatansTable) {
+            $kolomPenyakit = Schema::hasColumn($pengobatansTable, 'nama_penyakit') ? 'nama_penyakit' : 
+                             (Schema::hasColumn($pengobatansTable, 'penyakit') ? 'penyakit' : 'diagnosa');
 
-            $topPenyakit = DB::table($pengobatanTable)
-                ->select($kolomPenyakit . ' as penyakit', DB::raw('count(*) as total'))
-                ->whereNotNull($kolomPenyakit)
-                ->groupBy('penyakit')
-                ->orderByDesc('total')
-                ->limit(5)
-                ->get();
+            $topPenyakit = DB::table('pengobatans') // Sesuaikan dengan nama tabel kamu
+    ->select('penyakit as penyakit', DB::raw('count(*) as total'))
+    ->whereNotNull('penyakit')
+    ->groupBy('penyakit')
+    ->orderByDesc('total')
+    ->limit(5)
+    ->get();
 
             $labelsTopPenyakit = $topPenyakit->pluck('penyakit')->toArray();
             $dataTopPenyakit = $topPenyakit->pluck('total')->toArray();
@@ -93,9 +93,9 @@ class DashboardController extends Controller
 
         // 8. Data Grafik Tren Kasus Penyakit per Bulan (Januari - Desember untuk di dalam Tab)
         $dataPengobatanBulanan = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        if ($pengobatanTable) {
+        if ($pengobatansTable) {
             for ($m = 1; $m <= 12; $m++) {
-                $dataPengobatanBulanan[$m - 1] = DB::table($pengobatanTable)
+                $dataPengobatanBulanan[$m - 1] = DB::table($pengobatansTable)
                     ->whereMonth('created_at', $m)
                     ->count();
             }
