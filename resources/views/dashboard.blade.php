@@ -126,6 +126,11 @@
                             <h6 class="text-center text-muted fw-semibold mb-3">Grafik Inseminasi Buatan (IB)</h6>
                             <div id="chartIb" style="min-height: 280px;"></div>
                         </div>
+                        <!-- Slide 4: Top Penyakit / Pengobatan (BARU) -->
+                        <div class="carousel-item">
+                            <h6 class="text-center text-muted fw-semibold mb-3">Grafik Kasus Penyakit Terbanyak</h6>
+                            <div id="chartTopPenyakit" style="min-height: 280px;"></div>
+                        </div>
                     </div>
                     
                     <button class="carousel-control-prev" type="button" data-bs-target="#dashboardCarousel" data-bs-slide="prev" style="width: 5%;">
@@ -195,9 +200,11 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var dataPopulasi = {{ json_encode(array_map('intval', $dataPopulasi ?? [0, 0, 0, 0, 0, 0, 0])) }};
-        var dataSkkh     = {{ json_encode(array_map('intval', $dataSkkh ?? [0, 0, 0, 0, 0, 0])) }};
-        var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0, 0])) }};
+        var dataPopulasi      = {{ json_encode(array_map('intval', $dataPopulasi ?? [0, 0, 0, 0, 0, 0, 0])) }};
+        var dataSkkh          = {{ json_encode(array_map('intval', $dataSkkh ?? [0, 0, 0, 0, 0, 0])) }};
+        var dataIb            = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0, 0])) }};
+        var labelsTopPenyakit = {!! json_encode($labelsTopPenyakit ?? []) !!};
+        var dataTopPenyakit   = {{ json_encode(array_map('intval', $dataTopPenyakit ?? [])) }};
 
         // 1. Chart Populasi (Dengan Kategori Unggas Tambahan)
         var chartPopulasi = new ApexCharts(document.querySelector("#chartPopulasi"), {
@@ -225,6 +232,15 @@
             colors: ['#0dcaf0', '#ffc107', '#198754', '#6c757d']
         });
         chartIb.render();
+
+        // 4. Chart Top Penyakit / Pengobatan (Bar Chart) (BARU)
+        var chartTopPenyakit = new ApexCharts(document.querySelector("#chartTopPenyakit"), {
+            chart: { type: 'bar', height: 260 },
+            series: [{ name: 'Jumlah Kasus', data: dataTopPenyakit.length > 0 ? dataTopPenyakit : [0] }],
+            xaxis: { categories: labelsTopPenyakit.length > 0 ? labelsTopPenyakit : ['Belum Ada Data'] },
+            colors: ['#ffc107']
+        });
+        chartTopPenyakit.render();
 
         // Refresh ApexCharts saat Carousel Bergeser
         var carouselEl = document.getElementById('dashboardCarousel');

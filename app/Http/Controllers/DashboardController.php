@@ -23,13 +23,16 @@ class DashboardController extends Controller
             }
         }
 
+        // Deteksi nama tabel Pengobatan
+        $pengobatanTable = Schema::hasTable('pengobatans') ? 'pengobatans' : (Schema::hasTable('pengobatan') ? 'pengobatan' : null);
+
         // 3. Hitung Stat Cards
-        $totalPopulasi    = $populasiTable ? DB::table($populasiTable)->count() : 0;
-        $totalSkkh        = Schema::hasTable('skkhs') ? DB::table('skkhs')->count() : 0;
-        $totalIb          = $ibTable ? DB::table($ibTable)->count() : 0;
-        $totalPengobatan  = Schema::hasTable('pengobatans') ? DB::table('pengobatans')->count() : 0;
-        $totalNkv         = Schema::hasTable('nkvs') ? DB::table('nkvs')->count() : 0;
-        $totalSertifikasi = Schema::hasTable('sertifikasis') ? DB::table('sertifikasis')->count() : 0;
+        $totalPopulasi     = $populasiTable ? DB::table($populasiTable)->count() : 0;
+        $totalSkkh         = Schema::hasTable('skkhs') ? DB::table('skkhs')->count() : 0;
+        $totalIb           = $ibTable ? DB::table($ibTable)->count() : 0;
+        $totalPengobatan   = $pengobatanTable ? DB::table($pengobatanTable)->count() : 0;
+        $totalNkv          = Schema::hasTable('nkvs') ? DB::table('nkvs')->count() : 0;
+        $totalSertifikasi  = Schema::hasTable('sertifikasis') ? DB::table('sertifikasis')->count() : 0;
 
         // 4. Data Grafik Populasi Ternak (Ditambahkan Ayam, Bebek, Itik)
         $dataPopulasi = [0, 0, 0, 0, 0, 0, 0];
@@ -67,6 +70,37 @@ class DashboardController extends Controller
             }
         }
 
+        // --- TAMBAHAN BARU UNTUK PENGOBATAN & PENYAKIT ---
+
+        // 7. Data Grafik Top 5 Penyakit (Untuk Slideshow Utama)
+        $labelsTopPenyakit = [];
+        $dataTopPenyakit = [];
+        if ($pengobatanTable) {
+            $kolomPenyakit = Schema::hasColumn($pengobatanTable, 'nama_penyakit') ? 'nama_penyakit' : 
+                             (Schema::hasColumn($pengobatanTable, 'penyakit') ? 'penyakit' : 'diagnosa');
+
+            $topPenyakit = DB::table($pengobatanTable)
+                ->select($kolomPenyakit . ' as penyakit', DB::raw('count(*) as total'))
+                ->whereNotNull($kolomPenyakit)
+                ->groupBy('penyakit')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->get();
+
+            $labelsTopPenyakit = $topPenyakit->pluck('penyakit')->toArray();
+            $dataTopPenyakit = $topPenyakit->pluck('total')->toArray();
+        }
+
+        // 8. Data Grafik Tren Kasus Penyakit per Bulan (Januari - Desember untuk di dalam Tab)
+        $dataPengobatanBulanan = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        if ($pengobatanTable) {
+            for ($m = 1; $m <= 12; $m++) {
+                $dataPengobatanBulanan[$m - 1] = DB::table($pengobatanTable)
+                    ->whereMonth('created_at', $m)
+                    ->count();
+            }
+        }
+
         return view('dashboard', compact(
             'totalPopulasi',
             'totalSkkh',
@@ -76,7 +110,10 @@ class DashboardController extends Controller
             'totalSertifikasi',
             'dataPopulasi',
             'dataIb',
-            'dataSkkh'
+            'dataSkkh',
+            'labelsTopPenyakit',
+            'dataTopPenyakit',
+            'dataPengobatanBulanan'
         ));
     }
 }
