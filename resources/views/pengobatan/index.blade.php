@@ -314,7 +314,6 @@
     @endif
 
 </div>
-```
 
 </div>
 
@@ -465,6 +464,7 @@
 
     </form>
 
+</div>
 </div>
 <!-- GRAFIK PENGOBATAN & VAKSINASI -->
 <div class="card border-0 shadow-sm mt-4">
