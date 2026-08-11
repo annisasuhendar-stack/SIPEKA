@@ -489,16 +489,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const dataBulanan = @json($dataBulanan ?? [
-        0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0
-    ]);
+    const dataBulanan = @json($dataBulanan ?? []);
 
     const bulan = [
         'Jan', 'Feb', 'Mar', 'Apr',
         'Mei', 'Jun', 'Jul', 'Agu',
-        'Sep', 'Okt', 'Nov', 'Des'
-    ];
+        'Sep', 'Okt', 'Nov', 'Des'];
 
     const chartElement = document.querySelector("#chartBulanan");
 
