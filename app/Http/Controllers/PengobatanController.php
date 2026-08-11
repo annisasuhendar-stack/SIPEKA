@@ -136,17 +136,24 @@ foreach ($hewanData as $item) {
 // HEWAN DENGAN KASUS TERBANYAK
 // =====================================================
 
-$hewanTerbanyakData = Pengobatan::whereNotNull('jenis_hewan')
+$hewanDataTotal = Pengobatan::whereNotNull('jenis_hewan')
     ->where('jenis_hewan', '!=', '')
     ->select('jenis_hewan')
     ->selectRaw('COUNT(*) as total')
     ->groupBy('jenis_hewan')
     ->orderByDesc('total')
-    ->first();
+    ->get();
 
-$hewanTerbanyak = $hewanTerbanyakData
-    ? $hewanTerbanyakData->jenis_hewan
-    : '-';
+if ($hewanDataTotal->isNotEmpty()) {
+
+    $jumlahTerbanyak = $hewanDataTotal->first()->total;
+
+    $hewanTerbanyak = $hewanDataTotal
+        ->where('total', $jumlahTerbanyak)
+        ->pluck('jenis_hewan')
+        ->implode(' & ');
+
+} else {$hewanTerbanyak = '-';}
 
     return view('pengobatan.index', compact(
     'pengobatans',
