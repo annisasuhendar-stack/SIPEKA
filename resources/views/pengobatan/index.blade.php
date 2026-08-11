@@ -4,7 +4,7 @@
 
 <div class="container-fluid">
 
-```
+
 {{-- HEADER --}}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold text-success m-0">
@@ -325,7 +325,7 @@
      id="modalTambah"
      tabindex="-1">
 
-```
+
 <div class="modal-dialog">
 
     <form action="{{ route('pengobatan.store') }}"
