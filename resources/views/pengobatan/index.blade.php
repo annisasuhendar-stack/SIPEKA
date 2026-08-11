@@ -466,8 +466,97 @@
     </form>
 
 </div>
-```
+<!-- GRAFIK PENGOBATAN & VAKSINASI -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="fw-bold text-success mb-1">
+            📈 Tren Pengobatan & Vaksinasi per Bulan
+        </h5>
 
+        <small class="text-muted">
+            Jumlah pelayanan berdasarkan tanggal pelayanan
+        </small>
+    </div>
+
+    <div class="card-body">
+        <div id="chartBulanan" style="min-height: 320px;"></div>
+    </div>
 </div>
 
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const dataBulanan = @json($dataBulanan ?? [
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0
+    ]);
+
+    const bulan = [
+        'Jan', 'Feb', 'Mar', 'Apr',
+        'Mei', 'Jun', 'Jul', 'Agu',
+        'Sep', 'Okt', 'Nov', 'Des'
+    ];
+
+    const chartElement = document.querySelector("#chartBulanan");
+
+    if (chartElement) {
+
+        const chartBulanan = new ApexCharts(chartElement, {
+            chart: {
+                type: 'line',
+                height: 320,
+                toolbar: {
+                    show: true
+                }
+            },
+
+            series: [{
+                name: 'Jumlah Pelayanan',
+                data: dataBulanan
+            }],
+
+            xaxis: {
+                categories: bulan,
+                title: {
+                    text: 'Bulan'
+                }
+            },
+
+            yaxis: {
+                min: 0,
+                forceNiceScale: true,
+                title: {
+                    text: 'Jumlah Pelayanan'
+                }
+            },
+
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+
+            markers: {
+                size: 5
+            },
+
+            dataLabels: {
+                enabled: true
+            },
+
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return value + ' pelayanan';
+                    }
+                }
+            }
+        });
+
+        chartBulanan.render();
+    }
+});
+</script>
 @endsection

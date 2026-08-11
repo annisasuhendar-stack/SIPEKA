@@ -18,7 +18,19 @@ class PengobatanController extends Controller
                      ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
                      ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
     })->latest()->paginate(10);
+// DATA GRAFIK PENGOBATAN & VAKSINASI PER BULAN
+    $dataBulanan = [];
 
+    for ($bulan = 1; $bulan <= 12; $bulan++) {
+        $dataBulanan[] = Pengobatan::whereMonth('tanggal_pelayanan', $bulan)
+            ->count();
+    }
+
+    return view('pengobatan.index', compact(
+        'pengobatans',
+        'dataBulanan'
+    ));
+}
     return view('pengobatan.index', compact('pengobatans'));
 }
 
