@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class PengobatanController extends Controller
 {
    public function index(Request $request)
-{
+
     $search = $request->input('search');
 
     $pengobatans = Pengobatan::when($search, function ($query, $search) {
