@@ -30,6 +30,7 @@
                             <th>Jenis Hewan / Ternak</th>
                             <th>Jenis Layanan</th>
                             <th>Jenis Penyakit</th>
+                            <th>Tanggal Pelayanan</th>
                             <th width="150" class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -45,6 +46,8 @@
                                 </span>
                             </td>
                             <td>{{ $item->jenis_penyakit ?? '-' }}</td>
+                            <td>{{ $item->tanggal_pelayanan ? \Carbon\Carbon::parse($item->tanggal_pelayanan)->format('d-m-Y'): '-' }}
+                            </td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}">Edit</button>
                                 <form action="{{ route('pengobatan.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
@@ -86,6 +89,11 @@
                                                 <label class="form-label">Jenis Penyakit</label>
                                                 <input type="text" name="jenis_penyakit" class="form-control" value="{{ $item->jenis_penyakit }}">
                                             </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Tanggal Pelayanan</label>
+                                                <input type="date" name="tanggal_pelayanan" class="form-control" value="{{ $item->tanggal_pelayanan }}" required>
+
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -97,7 +105,7 @@
                         </div>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Belum ada data pengobatan atau vaksinasi.</td>
+                            <td colspan="7" class="text-center py-4 text-muted">Belum ada data pengobatan atau vaksinasi.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -111,7 +119,22 @@
         @endif
     </div>
 </div>
+<!-- Grafik Tren Kasus Penyakit -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="fw-bold text-success mb-1">
+            📈 Tren Kasus Penyakit per Bulan
+        </h5>
 
+        <small class="text-muted">
+            Jumlah kasus pengobatan berdasarkan tanggal pelayanan
+        </small>
+    </div>
+
+    <div class="card-body">
+        <div id="chartBulanan" style="min-height: 320px;"></div>
+    </div>
+</div>
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog">
@@ -151,4 +174,77 @@
         </form>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const dataBulanan = @json($dataBulanan ?? [
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0
+    ]);
+
+    const bulan = [
+        'Jan', 'Feb', 'Mar', 'Apr',
+        'Mei', 'Jun', 'Jul', 'Agu',
+        'Sep', 'Okt', 'Nov', 'Des'
+    ];
+
+    const chartBulanan = new ApexCharts(
+        document.querySelector("#chartBulanan"),
+        {
+            chart: {
+                type: 'line',
+                height: 320,
+                toolbar: {
+                    show: true
+                }
+            },
+
+            series: [{
+                name: 'Kasus Penyakit',
+                data: dataBulanan
+            }],
+
+            xaxis: {
+                categories: bulan,
+                title: {
+                    text: 'Bulan'
+                }
+            },
+
+            yaxis: {
+                min: 0,
+                forceNiceScale: true,
+                title: {
+                    text: 'Jumlah Kasus'
+                }
+            },
+
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+
+            markers: {
+                size: 5
+            },
+
+            dataLabels: {
+                enabled: true
+            },
+
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return value + ' kasus';
+                    }
+                }
+            }
+        }
+    );
+
+    chartBulanan.render();
+});
+</script>
 @endsection

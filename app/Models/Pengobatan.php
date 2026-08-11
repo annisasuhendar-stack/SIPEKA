@@ -10,9 +10,10 @@ class Pengobatan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_pemilik',
-        'jenis_hewan',
-        'jenis_layanan',
-        'jenis_penyakit',
-    ];
+    'nama_pemilik',
+    'jenis_hewan',
+    'jenis_layanan',
+    'jenis_penyakit',
+    'tanggal_pelayanan',
+];
 }

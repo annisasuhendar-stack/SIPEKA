@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
 class DashboardController extends Controller
 {
 public function index()
@@ -63,17 +64,56 @@ if ($populasiTable) {
                 $dataSkkh[$m - 1] = DB::table('skkhs')->whereMonth('created_at', $m)->count();
             }
         }
+        // 7. Data Grafik Penyakit Terbanyak
+$dataPenyakit = [];
+$labelPenyakit = [];
+
+if (Schema::hasTable('pengobatans')) {
+    $penyakit = DB::table('pengobatans')
+        ->select('jenis_penyakit', DB::raw('COUNT(*) as total'))
+        ->where('jenis_layanan', 'Pengobatan')
+        ->whereNotNull('jenis_penyakit')
+        ->where('jenis_penyakit', '!=', '')
+        ->groupBy('jenis_penyakit')
+        ->orderByDesc('total')
+        ->get();
+
+    foreach ($penyakit as $item) {
+        $labelPenyakit[] = $item->jenis_penyakit;
+        $dataPenyakit[] = (int) $item->total;
+    }
+}
+$dataPenyakit = [];
+$labelPenyakit = [];
+
+if (Schema::hasTable('pengobatans')) {
+    $penyakit = DB::table('pengobatans')
+        ->select('jenis_penyakit', DB::raw('COUNT(*) as total'))
+        ->where('jenis_layanan', 'Pengobatan')
+        ->whereNotNull('jenis_penyakit')
+        ->where('jenis_penyakit', '!=', '')
+        ->groupBy('jenis_penyakit')
+        ->orderByDesc('total')
+        ->get();
+
+    foreach ($penyakit as $item) {
+        $labelPenyakit[] = $item->jenis_penyakit;
+        $dataPenyakit[] = $item->total;
+    }
+}
         return view('dashboard', compact(
-            'totalPopulasi',
-            'totalSkkh',
-            'totalIb',
-            'totalPengobatan',
-            'totalNkv',
-            'totalSertifikasi',
-            'dataPopulasi',
-            'dataIb',
-            'dataSkkh'
-        ));
+    'totalPopulasi',
+    'totalSkkh',
+    'totalIb',
+    'totalPengobatan',
+    'totalNkv',
+    'totalSertifikasi',
+    'dataPopulasi',
+    'dataIb',
+    'dataSkkh',
+    'dataPenyakit',
+    'labelPenyakit'
+));
     }
 } 
 

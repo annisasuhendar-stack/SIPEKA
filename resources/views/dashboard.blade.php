@@ -48,7 +48,13 @@
             </div>
         </div>
     </div>
-    <!-- Card 4: Pengobatan & Vaksinasi -->
+    <!-- Slide 4: Penyakit Terbanyak -->
+<div class="carousel-item">
+    <h6 class="text-center text-muted fw-semibold mb-3">
+        Grafik Penyakit Ternak yang Paling Banyak Ditemukan
+    </h6>
+    <div id="chartPenyakit" style="min-height: 280px;"></div>
+</div>
     <div class="col-md-4 col-lg-2">
         <div class="card border-0 shadow-sm rounded-3 bg-warning bg-gradient text-white h-100">
            <div class="card-body p-3">
@@ -189,8 +195,10 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var dataPopulasi = {{ json_encode(array_map('intval', $dataPopulasi ?? [0, 0, 0, 0, 0, 0, 0])) }};
-        var dataSkkh     = {{ json_encode(array_map('intval', $dataSkkh ?? [0, 0, 0, 0, 0, 0])) }};
-        var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0, 0])) }};
+var dataSkkh     = {{ json_encode(array_map('intval', $dataSkkh ?? [0, 0, 0, 0, 0, 0])) }};
+var dataIb       = {{ json_encode(array_map('intval', $dataIb ?? [0, 0, 0, 0])) }};
+var dataPenyakit = {{ json_encode(array_map('intval', $dataPenyakit ?? [])) }};
+var labelPenyakit = {!! json_encode($labelPenyakit ?? []) !!};
 // 1. Chart Populasi (Dengan Kategori Unggas Tambahan)
         var chartPopulasi = new ApexCharts(document.querySelector("#chartPopulasi"), {
             chart: { type: 'bar', height: 260 },
@@ -215,6 +223,45 @@
             colors: ['#0dcaf0', '#ffc107', '#198754', '#6c757d']
         });
         chartIb.render();
+        // 4. Chart Penyakit Terbanyak
+var chartPenyakit = new ApexCharts(document.querySelector("#chartPenyakit"), {
+    chart: {
+        type: 'bar',
+        height: 260
+    },
+    series: [{
+        name: 'Jumlah Kasus',
+        data: dataPenyakit
+    }],
+    xaxis: {
+        categories: labelPenyakit
+    },
+    yaxis: {
+        min: 0,
+        forceNiceScale: true,
+        title: {
+            text: 'Jumlah Kasus'
+        }
+    },
+    plotOptions: {
+        bar: {
+            borderRadius: 5,
+            distributed: true
+        }
+    },
+    dataLabels: {
+        enabled: true
+    },
+    tooltip: {
+        y: {
+            formatter: function (value) {
+                return value + ' kasus';
+            }
+        }
+    }
+});
+
+chartPenyakit.render();
         // Refresh ApexCharts saat Carousel Bergeser
         var carouselEl = document.getElementById('dashboardCarousel');
         if (carouselEl) {

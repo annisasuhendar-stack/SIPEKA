@@ -9,46 +9,66 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PengobatanController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $pengobatans = Pengobatan::when($search, function ($query, $search) {
-            return $query->where('nama_pemilik', 'ILIKE', "%{$search}%")
-                         ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
-                         ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
-        })->latest()->paginate(10);
+   public function index(Request $request)
+{
+    $search = $request->input('search');
 
-        return view('pengobatan.index', compact('pengobatans'));
+    $pengobatans = Pengobatan::when($search, function ($query, $search) {
+        return $query->where('nama_pemilik', 'ILIKE', "%{$search}%")
+                     ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
+                     ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
+    })->latest()->paginate(10);
+
+    // Data grafik kasus penyakit per bulan
+    $dataBulanan = [];
+
+    for ($bulan = 1; $bulan <= 12; $bulan++) {
+        $dataBulanan[] = Pengobatan::where('jenis_layanan', 'Pengobatan')
+            ->whereMonth('tanggal_pelayanan', $bulan)
+            ->count();
     }
+
+    return view('pengobatan.index', compact(
+        'pengobatans',
+        'dataBulanan'
+    ));
+}
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'nama_pemilik'   => 'required|string|max:255',
-            'jenis_hewan'    => 'required|string|max:255',
-            'jenis_layanan'  => 'required|in:Vaksinasi,Pengobatan',
-            'jenis_penyakit' => 'nullable|string|max:255',
-        ]);
+{
+    $request->validate([
+        'nama_pemilik'      => 'required|string|max:255',
+        'jenis_hewan'       => 'required|string|max:255',
+        'jenis_layanan'     => 'required|in:Vaksinasi,Pengobatan',
+        'jenis_penyakit'    => 'nullable|string|max:255',
+        'tanggal_pelayanan' => 'required|date',
+    ]);
 
-        Pengobatan::create($request->all());
+    Pengobatan::create($request->all());
 
-        return redirect()->route('pengobatan.index')->with('success', 'Data pengobatan/vaksinasi berhasil ditambahkan!');
-    }
+    return redirect()
+        ->route('pengobatan.index')
+        ->with('success', 'Data pengobatan/vaksinasi berhasil ditambahkan!');
+}
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nama_pemilik'   => 'required|string|max:255',
-            'jenis_hewan'    => 'required|string|max:255',
-            'jenis_layanan'  => 'required|in:Vaksinasi,Pengobatan',
-            'jenis_penyakit' => 'nullable|string|max:255',
-        ]);
+   public function update(Request $request, $id)
+{
+    $request->validate([
+        'nama_pemilik'      => 'required|string|max:255',
+        'jenis_hewan'       => 'required|string|max:255',
+        'jenis_layanan'     => 'required|in:Vaksinasi,Pengobatan',
+        'jenis_penyakit'    => 'nullable|string|max:255',
+        'tanggal_pelayanan' => 'required|date',
+    ]);
 
-        $pengobatan = Pengobatan::findOrFail($id);
-        $pengobatan->update($request->all());
+    $pengobatan = Pengobatan::findOrFail($id);
 
-        return redirect()->route('pengobatan.index')->with('success', 'Data pengobatan/vaksinasi berhasil diperbarui!');
-    }
+    $pengobatan->update($request->all());
+
+    return redirect()
+        ->route('pengobatan.index')
+        ->with('success', 'Data pengobatan/vaksinasi berhasil diperbarui!');
+}
 
     public function destroy($id)
     {
