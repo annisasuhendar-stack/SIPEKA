@@ -440,7 +440,7 @@ document.addEventListener("DOMContentLoaded", function () {
         {{ json_encode(array_map('intval', $dataPopulasi ?? [0,0,0,0,0,0,0])) }};
 
     var dataSkkh =
-        {{ json_encode(array_map('intval', $dataSkkh ?? [0,0,0,0,0,0])) }};
+    {{ json_encode(array_map('intval', $dataSkkh ?? [0,0,0,0,0,0,0,0,0,0,0,0])) }};
 
     var dataIb =
         {{ json_encode(array_map('intval', $dataIb ?? [0,0,0,0])) }};
@@ -508,14 +508,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }],
 
             xaxis: {
-                categories: [
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'Mei',
-                    'Jun'
-                ]
+                categories: ['Jan', 'Feb', 'Mar', 'Apr','Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
             },
 
             colors: ['#198754']

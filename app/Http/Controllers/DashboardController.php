@@ -110,17 +110,17 @@ class DashboardController extends Controller
 
 
         // 6. Data Grafik SKKH per Bulan
-        $dataSkkh = [0, 0, 0, 0, 0, 0];
+$dataSkkh = array_fill(0, 12, 0);
 
-        if (Schema::hasTable('skkhs')) {
+if (Schema::hasTable('skkhs')) {
 
-            for ($m = 1; $m <= 6; $m++) {
+    for ($m = 1; $m <= 12; $m++) {
 
-                $dataSkkh[$m - 1] = DB::table('skkhs')
-                    ->whereMonth('created_at', $m)
-                    ->count();
-            }
-        }
+        $dataSkkh[$m - 1] = DB::table('skkhs')
+            ->whereMonth('created_at', $m)
+            ->count();
+    }
+}
 
 
         // 7. Data Grafik Penyakit Terbanyak
