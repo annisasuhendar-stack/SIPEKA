@@ -9,6 +9,7 @@ use App\Http\Controllers\KecamatanController;
 use App\Http\Controllers\InseminasiBuatanController;
 use App\Http\Controllers\PengobatanController;
 use App\Http\Controllers\SkkhController;
+use App\Http\Controllers\SuratKeteranganUsahaController;
 Route::get('/', function () {
     return redirect('/dashboard');
 });
@@ -31,3 +32,5 @@ Route::resource('inseminasi', InseminasiBuatanController::class);
 Route::resource('pengobatan', PengobatanController::class);
 Route::resource('skkh', SkkhController::class)
     ->except(['show', 'create', 'edit']);
+Route::resource('surat-keterangan-usaha', SuratKeteranganUsahaController::class)
+    ->only(['index', 'store', 'update', 'destroy']);

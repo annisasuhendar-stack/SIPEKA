@@ -145,7 +145,9 @@
 <a href="{{ route('skkh.index') }}">
     📄 SKKH
 </a>
-<a href="#">📜 Surat Keterangan Usaha</a>
+<a href="{{ route('surat-keterangan-usaha.index') }}">
+    📜 Surat Keterangan Usaha
+</a>
 
 <a href="#">📑 Surat Rekomendasi Peternakan</a>
 
