@@ -91,19 +91,14 @@
                                 <td>
 
                                     @if($item->dokumen)
-
-                                        <a href="{{ asset('storage/' . $item->dokumen) }}"
-                                           target="_blank"
-                                           class="btn btn-sm btn-outline-success">
-                                            📎 Lihat Dokumen
-                                        </a>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            Belum ada
-                                        </span>
-
+    <a href="{{ rtrim(env('SUPABASE_URL'), '/') }}/storage/v1/object/public/{{ env('SUPABASE_BUCKET') }}/{{ $item->dokumen }}"
+       target="_blank"
+       class="btn btn-sm btn-outline-primary">
+        Lihat Dokumen
+    </a>
+@else
+    <span class="text-muted">Tidak ada</span>
+@endif
                                     @endif
 
                                 </td>

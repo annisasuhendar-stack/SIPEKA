@@ -4,10 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\Skkh;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class SkkhController extends Controller
 {
+    private function uploadToSupabase($file)
+    {
+        $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+
+        $url = rtrim(env('SUPABASE_URL'), '/')
+            . '/storage/v1/object/'
+            . env('SUPABASE_BUCKET')
+            . '/'
+            . $fileName;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('SUPABASE_KEY'),
+            'apikey'        => env('SUPABASE_KEY'),
+            'Content-Type'  => $file->getMimeType(),
+        ])->withBody(
+            file_get_contents($file->getRealPath()),
+            $file->getMimeType()
+        )->post($url);
+
+        if (!$response->successful()) {
+            throw new \Exception(
+                'Gagal upload dokumen ke Supabase: ' . $response->body()
+            );
+        }
+
+        return $fileName;
+    }
+
     public function index()
     {
         $skkhs = Skkh::latest()->paginate(10);
@@ -29,8 +58,9 @@ class SkkhController extends Controller
         $data = $request->except('dokumen');
 
         if ($request->hasFile('dokumen')) {
-            $data['dokumen'] = $request->file('dokumen')
-                ->store('dokumen-skkh', 'public');
+            $data['dokumen'] = $this->uploadToSupabase(
+                $request->file('dokumen')
+            );
         }
 
         Skkh::create($data);
@@ -56,13 +86,9 @@ class SkkhController extends Controller
         $data = $request->except('dokumen');
 
         if ($request->hasFile('dokumen')) {
-
-            if ($skkh->dokumen) {
-                Storage::disk('public')->delete($skkh->dokumen);
-            }
-
-            $data['dokumen'] = $request->file('dokumen')
-                ->store('dokumen-skkh', 'public');
+            $data['dokumen'] = $this->uploadToSupabase(
+                $request->file('dokumen')
+            );
         }
 
         $skkh->update($data);
@@ -75,10 +101,6 @@ class SkkhController extends Controller
     public function destroy($id)
     {
         $skkh = Skkh::findOrFail($id);
-
-        if ($skkh->dokumen) {
-            Storage::disk('public')->delete($skkh->dokumen);
-        }
 
         $skkh->delete();
 
