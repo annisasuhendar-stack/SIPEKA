@@ -147,21 +147,43 @@ if (Schema::hasTable('skkhs')) {
                 $dataPenyakit[] = (int) $item->total;
             }
         }
+// 7. Data Grafik SKUP berdasarkan Jenis Komoditi/Usaha
+$dataSkup = [];
+$labelSkup = [];
 
+if (Schema::hasTable('surat_keterangan_usahas')) {
 
-        // 8. Kirim semua data ke Dashboard
+    $skup = DB::table('surat_keterangan_usahas')
+        ->select(
+            'jenis_komoditi_usaha',
+            DB::raw('COUNT(*) as total')
+        )
+        ->whereNotNull('jenis_komoditi_usaha')
+        ->where('jenis_komoditi_usaha', '!=', '')
+        ->groupBy('jenis_komoditi_usaha')
+        ->orderByDesc('total')
+        ->get();
+
+    foreach ($skup as $item) {
+        $labelSkup[] = $item->jenis_komoditi_usaha;
+        $dataSkup[] = (int) $item->total;
+    }
+}
+
         return view('dashboard', compact(
-            'totalPopulasi',
-            'totalSkkh',
-            'totalIb',
-            'totalPengobatan',
-            'totalNkv',
-            'totalSertifikasi',
-            'dataPopulasi',
-            'dataIb',
-            'dataSkkh',
-            'dataPenyakit',
-            'labelPenyakit'
-        ));
+    'totalPopulasi',
+    'totalSkkh',
+    'totalIb',
+    'totalPengobatan',
+    'totalNkv',
+    'totalSertifikasi',
+    'dataPopulasi',
+    'dataIb',
+    'dataSkkh',
+    'dataSkup',
+    'labelSkup',
+    'dataPenyakit',
+    'labelPenyakit'
+));
     }
 }

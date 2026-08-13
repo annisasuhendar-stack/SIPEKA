@@ -257,7 +257,17 @@
                             </div>
 
                         </div>
+                        <!-- CHART SKUP -->
+                       <div class="carousel-item">
+                       <h6 class="text-center text-muted fw-semibold mb-3">
+        SKUP Berdasarkan Jenis Usaha/Komoditi
+    </h6>
 
+    <div id="chartSkup"
+         style="min-height: 280px;">
+    </div>
+
+</div>
 
                     </div>
 
@@ -441,7 +451,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var dataSkkh =
     {{ json_encode(array_map('intval', $dataSkkh ?? [0,0,0,0,0,0,0,0,0,0,0,0])) }};
+    var dataSkup =
+    {{ json_encode(array_map('intval', $dataSkup ?? [])) }};
 
+    var labelSkup =
+    @json($labelSkup ?? []);
     var dataIb =
         {{ json_encode(array_map('intval', $dataIb ?? [0,0,0,0])) }};
 
@@ -450,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var labelPenyakit =
         {!! json_encode($labelPenyakit ?? []) !!};
-
+    
 
 
     // =====================================================
@@ -607,7 +621,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
     chartPenyakit.render();
 
+// =====================================================
+// 5. CHART SKUP BERDASARKAN JENIS USAHA/KOMODITI
+// =====================================================
 
+var chartSkup = new ApexCharts(
+    document.querySelector("#chartSkup"),
+    {
+        chart: {
+            type: 'bar',
+            height: 260
+        },
+
+        series: [{
+            name: 'Jumlah SKUP',
+            data: dataSkup
+        }],
+
+        xaxis: {
+            categories: labelSkup
+        },
+
+        yaxis: {
+            min: 0,
+            forceNiceScale: true,
+
+            title: {
+                text: 'Jumlah SKUP'
+            }
+        },
+
+        plotOptions: {
+            bar: {
+                borderRadius: 5,
+                distributed: true
+            }
+        },
+
+        dataLabels: {
+            enabled: true
+        },
+
+        tooltip: {
+            y: {
+                formatter: function (value) {
+                    return value + ' SKUP';
+                }
+            }
+        }
+    }
+);
+
+chartSkup.render();
 
     // =====================================================
     // REFRESH CHART SAAT CAROUSEL BERPINDAH
