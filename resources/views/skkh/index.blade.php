@@ -98,7 +98,6 @@
     </a>
 @else
     <span class="text-muted">Tidak ada</span>
-@endif
                                     @endif
 
                                 </td>
