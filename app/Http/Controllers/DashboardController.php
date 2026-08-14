@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -10,42 +9,33 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Deteksi nama tabel populasi
-        $populasiTable = Schema::hasTable('populasi_ternaks')
-            ? 'populasi_ternaks'
-            : (Schema::hasTable('populasis') ? 'populasis' : null);
+        // =====================================================
+        // CEK TABEL YANG DIPERLUKAN
+        // =====================================================
 
-        // 2. Deteksi nama tabel Inseminasi Buatan
-        $ibTable = null;
+        $hasPopulasi = Schema::hasTable('populasi_ternaks');
+        $hasIb = Schema::hasTable('inseminasi_buatans');
+        $hasSkkh = Schema::hasTable('skkhs');
+        $hasPengobatan = Schema::hasTable('pengobatans');
+        $hasSkup = Schema::hasTable('surat_keterangan_usahas');
 
-        $possibleIbTables = [
-            'inseminasi_buatans',
-            'inseminasis',
-            'inseminasi_buatan',
-            'inseminasi'
-        ];
+        // =====================================================
+        // 1. STAT CARD
+        // =====================================================
 
-        foreach ($possibleIbTables as $tbl) {
-            if (Schema::hasTable($tbl)) {
-                $ibTable = $tbl;
-                break;
-            }
-        }
-
-        // 3. Hitung Stat Cards
-        $totalPopulasi = $populasiTable
-            ? DB::table($populasiTable)->count()
+        $totalPopulasi = $hasPopulasi
+            ? DB::table('populasi_ternaks')->count()
             : 0;
 
-        $totalSkkh = Schema::hasTable('skkhs')
+        $totalSkkh = $hasSkkh
             ? DB::table('skkhs')->count()
             : 0;
 
-        $totalIb = $ibTable
-            ? DB::table($ibTable)->count()
+        $totalIb = $hasIb
+            ? DB::table('inseminasi_buatans')->count()
             : 0;
 
-        $totalPengobatan = Schema::hasTable('pengobatans')
+        $totalPengobatan = $hasPengobatan
             ? DB::table('pengobatans')->count()
             : 0;
 
@@ -58,76 +48,109 @@ class DashboardController extends Controller
             : 0;
 
 
-        // 4. Data Grafik Populasi Ternak
-        $dataPopulasi = [0, 0, 0, 0, 0, 0, 0];
+        // =====================================================
+        // 2. GRAFIK POPULASI TERNAK
+        // =====================================================
 
-        if ($populasiTable) {
+        $jenisPopulasiList = [
+            'Sapi',
+            'Kambing',
+            'Domba',
+            'Kerbau',
+            'Ayam',
+            'Bebek',
+            'Itik'
+        ];
 
-            $jenisPopulasiList = [
-                'Sapi',
-                'Kambing',
-                'Domba',
-                'Kerbau',
-                'Ayam',
-                'Bebek',
-                'Itik'
-            ];
+        $dataPopulasi = array_fill(0, count($jenisPopulasiList), 0);
 
-            foreach ($jenisPopulasiList as $index => $jenis) {
+        if ($hasPopulasi) {
 
-                $dataPopulasi[$index] = DB::table($populasiTable)
-                    ->where(function ($q) use ($jenis) {
-                        $q->where('jenis_ternak', 'ILIKE', "%{$jenis}%")
-                          ->orWhere('jenis_ternak', 'LIKE', "%{$jenis}%");
-                    })
-                    ->count();
+            $populasi = DB::table('populasi_ternaks')
+                ->select(
+                    DB::raw('LOWER(jenis_ternak) as jenis'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy(DB::raw('LOWER(jenis_ternak)'))
+                ->get();
+
+            foreach ($populasi as $item) {
+
+                foreach ($jenisPopulasiList as $index => $jenis) {
+
+                    if (stripos($item->jenis, strtolower($jenis)) !== false) {
+                        $dataPopulasi[$index] += (int) $item->total;
+                    }
+                }
             }
         }
 
 
-        // 5. Data Grafik Inseminasi Buatan
-        $dataIb = [0, 0, 0, 0];
+        // =====================================================
+        // 3. GRAFIK INSEMINASI BUATAN
+        // =====================================================
 
-        if ($ibTable) {
+        $jenisIbList = [
+            'Sapi',
+            'Kambing',
+            'Domba',
+            'Kerbau'
+        ];
 
-            $jenisIbList = [
-                'Sapi',
-                'Kambing',
-                'Domba',
-                'Kerbau'
-            ];
+        $dataIb = array_fill(0, count($jenisIbList), 0);
 
-            foreach ($jenisIbList as $index => $jenis) {
+        if ($hasIb) {
 
-                $dataIb[$index] = DB::table($ibTable)
-                    ->where(function ($q) use ($jenis) {
-                        $q->where('jenis_hewan', 'ILIKE', "%{$jenis}%")
-                          ->orWhere('jenis_hewan', 'LIKE', "%{$jenis}%");
-                    })
-                    ->count();
+            $ib = DB::table('inseminasi_buatans')
+                ->select(
+                    DB::raw('LOWER(jenis_hewan) as jenis'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy(DB::raw('LOWER(jenis_hewan)'))
+                ->get();
+
+            foreach ($ib as $item) {
+
+                foreach ($jenisIbList as $index => $jenis) {
+
+                    if (stripos($item->jenis, strtolower($jenis)) !== false) {
+                        $dataIb[$index] += (int) $item->total;
+                    }
+                }
             }
         }
 
 
-        // 6. Data Grafik SKKH per Bulan
-$dataSkkh = array_fill(0, 12, 0);
+        // =====================================================
+        // 4. GRAFIK SKKH PER BULAN
+        // =====================================================
 
-if (Schema::hasTable('skkhs')) {
+        $dataSkkh = array_fill(0, 12, 0);
 
-    for ($m = 1; $m <= 12; $m++) {
+        if ($hasSkkh) {
 
-        $dataSkkh[$m - 1] = DB::table('skkhs')
-            ->whereMonth('created_at', $m)
-            ->count();
-    }
-}
+            $skkhBulanan = DB::table('skkhs')
+                ->select(
+                    DB::raw('EXTRACT(MONTH FROM created_at) as bulan'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy(DB::raw('EXTRACT(MONTH FROM created_at)'))
+                ->get();
+
+            foreach ($skkhBulanan as $item) {
+                $dataSkkh[(int) $item->bulan - 1] = (int) $item->total;
+            }
+        }
 
 
-        // 7. Data Grafik Penyakit Terbanyak
+        // =====================================================
+        // 5. GRAFIK PENYAKIT TERBANYAK
+        // =====================================================
+
         $dataPenyakit = [];
         $labelPenyakit = [];
 
-        if (Schema::hasTable('pengobatans')) {
+        if ($hasPengobatan) {
 
             $penyakit = DB::table('pengobatans')
                 ->select(
@@ -147,43 +170,54 @@ if (Schema::hasTable('skkhs')) {
                 $dataPenyakit[] = (int) $item->total;
             }
         }
-// 7. Data Grafik SKUP berdasarkan Jenis Komoditi/Usaha
-$dataSkup = [];
-$labelSkup = [];
 
-if (Schema::hasTable('surat_keterangan_usahas')) {
 
-    $skup = DB::table('surat_keterangan_usahas')
-        ->select(
-            'jenis_komoditi_usaha',
-            DB::raw('COUNT(*) as total')
-        )
-        ->whereNotNull('jenis_komoditi_usaha')
-        ->where('jenis_komoditi_usaha', '!=', '')
-        ->groupBy('jenis_komoditi_usaha')
-        ->orderByDesc('total')
-        ->get();
+        // =====================================================
+        // 6. GRAFIK SKUP
+        // =====================================================
 
-    foreach ($skup as $item) {
-        $labelSkup[] = $item->jenis_komoditi_usaha;
-        $dataSkup[] = (int) $item->total;
-    }
-}
+        $dataSkup = [];
+        $labelSkup = [];
+
+        if ($hasSkup) {
+
+            $skup = DB::table('surat_keterangan_usahas')
+                ->select(
+                    'jenis_komoditi_usaha',
+                    DB::raw('COUNT(*) as total')
+                )
+                ->whereNotNull('jenis_komoditi_usaha')
+                ->where('jenis_komoditi_usaha', '!=', '')
+                ->groupBy('jenis_komoditi_usaha')
+                ->orderByDesc('total')
+                ->get();
+
+            foreach ($skup as $item) {
+
+                $labelSkup[] = $item->jenis_komoditi_usaha;
+                $dataSkup[] = (int) $item->total;
+            }
+        }
+
+
+        // =====================================================
+        // KIRIM DATA KE DASHBOARD
+        // =====================================================
 
         return view('dashboard', compact(
-    'totalPopulasi',
-    'totalSkkh',
-    'totalIb',
-    'totalPengobatan',
-    'totalNkv',
-    'totalSertifikasi',
-    'dataPopulasi',
-    'dataIb',
-    'dataSkkh',
-    'dataSkup',
-    'labelSkup',
-    'dataPenyakit',
-    'labelPenyakit'
-));
+            'totalPopulasi',
+            'totalSkkh',
+            'totalIb',
+            'totalPengobatan',
+            'totalNkv',
+            'totalSertifikasi',
+            'dataPopulasi',
+            'dataIb',
+            'dataSkkh',
+            'dataSkup',
+            'labelSkup',
+            'dataPenyakit',
+            'labelPenyakit'
+        ));
     }
 }
