@@ -32,4 +32,4 @@ RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-available/00
 
 EXPOSE 8080
 
-CMD php artisan config:clear && php artisan cache:clear && php artisan migrate --force && apache2-foreground
+CMD php artisan config:cache && php artisan route:cache && php artisan view:cache && apache2-foreground
