@@ -13,10 +13,16 @@ class PengobatanController extends Controller
 {
     $search = $request->input('search');
 
+    // =====================================================
+    // DATA TABEL + SEARCH + PAGINATION
+    // =====================================================
+
     $pengobatans = Pengobatan::when($search, function ($query, $search) {
-        return $query->where('nama_pemilik', 'ILIKE', "%{$search}%")
-                     ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
-                     ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
+        return $query->where(function ($q) use ($search) {
+            $q->where('nama_pemilik', 'ILIKE', "%{$search}%")
+              ->orWhere('jenis_hewan', 'ILIKE', "%{$search}%")
+              ->orWhere('jenis_penyakit', 'ILIKE', "%{$search}%");
+        });
     })
     ->latest()
     ->paginate(10);
@@ -24,28 +30,32 @@ class PengobatanController extends Controller
 
     // =====================================================
     // GRAFIK PENYAKIT PER BULAN
+    // HANYA 1 QUERY
     // =====================================================
 
-    $jenisPenyakit = Pengobatan::whereNotNull('jenis_penyakit')
+    $penyakitBulanan = Pengobatan::whereNotNull('jenis_penyakit')
         ->where('jenis_penyakit', '!=', '')
-        ->distinct()
-        ->pluck('jenis_penyakit')
-        ->values()
-        ->toArray();
+        ->select(
+            'jenis_penyakit',
+            DB::raw('EXTRACT(MONTH FROM tanggal_pelayanan) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->groupBy(
+            'jenis_penyakit',
+            DB::raw('EXTRACT(MONTH FROM tanggal_pelayanan)')
+        )
+        ->orderBy('jenis_penyakit')
+        ->get();
+
 
     $dataPenyakit = [];
 
-    foreach ($jenisPenyakit as $penyakit) {
+    foreach ($penyakitBulanan->groupBy('jenis_penyakit') as $penyakit => $items) {
 
-        $data = [];
+        $data = array_fill(0, 12, 0);
 
-        for ($bulan = 1; $bulan <= 12; $bulan++) {
-
-            $jumlah = Pengobatan::where('jenis_penyakit', $penyakit)
-                ->whereMonth('tanggal_pelayanan', $bulan)
-                ->count();
-
-            $data[] = $jumlah;
+        foreach ($items as $item) {
+            $data[(int) $item->bulan - 1] = (int) $item->total;
         }
 
         $dataPenyakit[] = [
@@ -69,18 +79,27 @@ class PengobatanController extends Controller
 
 
     // =====================================================
-    // BULAN DENGAN KASUS TERBANYAK
+    // KASUS PER BULAN
+    // HANYA 1 QUERY
     // =====================================================
 
-    $kasusPerBulan = [];
+    $kasusBulanan = Pengobatan::whereNotNull('jenis_penyakit')
+        ->where('jenis_penyakit', '!=', '')
+        ->select(
+            DB::raw('EXTRACT(MONTH FROM tanggal_pelayanan) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )
+        ->groupBy(
+            DB::raw('EXTRACT(MONTH FROM tanggal_pelayanan)')
+        )
+        ->get();
 
-    for ($bulan = 1; $bulan <= 12; $bulan++) {
+    $kasusPerBulan = array_fill(1, 12, 0);
 
-        $kasusPerBulan[$bulan] = Pengobatan::whereNotNull('jenis_penyakit')
-            ->where('jenis_penyakit', '!=', '')
-            ->whereMonth('tanggal_pelayanan', $bulan)
-            ->count();
+    foreach ($kasusBulanan as $item) {
+        $kasusPerBulan[(int) $item->bulan] = (int) $item->total;
     }
+
 
     $bulanTerbanyak = !empty($kasusPerBulan)
         ? array_search(max($kasusPerBulan), $kasusPerBulan)
@@ -109,62 +128,87 @@ class PengobatanController extends Controller
     $jumlahKasusBulanTerbanyak = $bulanTerbanyak
         ? $kasusPerBulan[$bulanTerbanyak]
         : 0;
-// =====================================================
-// PENYAKIT BERDASARKAN JENIS HEWAN
-// =====================================================
-
-$hewanData = Pengobatan::whereNotNull('jenis_hewan')
-    ->where('jenis_hewan', '!=', '')
-    ->whereNotNull('jenis_penyakit')
-    ->where('jenis_penyakit', '!=', '')
-    ->select('jenis_hewan', 'jenis_penyakit')
-    ->selectRaw('COUNT(*) as total')
-    ->groupBy('jenis_hewan', 'jenis_penyakit')
-    ->orderByDesc('total')
-    ->get();
-
-$labelHewan = [];
-$dataHewan = [];
-
-foreach ($hewanData as $item) {
-    $labelHewan[] = $item->jenis_hewan . ' - ' . $item->jenis_penyakit;
-    $dataHewan[] = (int) $item->total;
-}
 
 
-// =====================================================
-// HEWAN DENGAN KASUS TERBANYAK
-// =====================================================
+    // =====================================================
+    // PENYAKIT BERDASARKAN JENIS HEWAN
+    // HANYA 1 QUERY
+    // =====================================================
 
-$hewanDataTotal = Pengobatan::whereNotNull('jenis_hewan')
-    ->where('jenis_hewan', '!=', '')
-    ->select('jenis_hewan')
-    ->selectRaw('COUNT(*) as total')
-    ->groupBy('jenis_hewan')
-    ->orderByDesc('total')
-    ->get();
+    $hewanData = Pengobatan::whereNotNull('jenis_hewan')
+        ->where('jenis_hewan', '!=', '')
+        ->whereNotNull('jenis_penyakit')
+        ->where('jenis_penyakit', '!=', '')
+        ->select(
+            'jenis_hewan',
+            'jenis_penyakit'
+        )
+        ->selectRaw('COUNT(*) as total')
+        ->groupBy(
+            'jenis_hewan',
+            'jenis_penyakit'
+        )
+        ->orderByDesc('total')
+        ->get();
 
-if ($hewanDataTotal->isNotEmpty()) {
 
-    $jumlahTerbanyak = $hewanDataTotal->first()->total;
+    $labelHewan = [];
+    $dataHewan = [];
 
-    $hewanTerbanyak = $hewanDataTotal
-        ->where('total', $jumlahTerbanyak)
-        ->pluck('jenis_hewan')
-        ->implode(' & ');
+    foreach ($hewanData as $item) {
 
-} else {$hewanTerbanyak = '-';}
+        $labelHewan[] =
+            $item->jenis_hewan . ' - ' . $item->jenis_penyakit;
+
+        $dataHewan[] = (int) $item->total;
+    }
+
+
+    // =====================================================
+    // HEWAN DENGAN KASUS TERBANYAK
+    // HANYA 1 QUERY
+    // =====================================================
+
+    $hewanDataTotal = Pengobatan::whereNotNull('jenis_hewan')
+        ->where('jenis_hewan', '!=', '')
+        ->select(
+            'jenis_hewan'
+        )
+        ->selectRaw('COUNT(*) as total')
+        ->groupBy('jenis_hewan')
+        ->orderByDesc('total')
+        ->get();
+
+
+    if ($hewanDataTotal->isNotEmpty()) {
+
+        $jumlahTerbanyak = $hewanDataTotal->first()->total;
+
+        $hewanTerbanyak = $hewanDataTotal
+            ->where('total', $jumlahTerbanyak)
+            ->pluck('jenis_hewan')
+            ->implode(' & ');
+
+    } else {
+
+        $hewanTerbanyak = '-';
+    }
+
+
+    // =====================================================
+    // KIRIM KE VIEW
+    // =====================================================
 
     return view('pengobatan.index', compact(
-    'pengobatans',
-    'dataPenyakit',
-    'penyakitTerbanyak',
-    'namaBulanTerbanyak',
-    'jumlahKasusBulanTerbanyak',
-    'labelHewan',
-    'dataHewan',
-    'hewanTerbanyak'
-));
+        'pengobatans',
+        'dataPenyakit',
+        'penyakitTerbanyak',
+        'namaBulanTerbanyak',
+        'jumlahKasusBulanTerbanyak',
+        'labelHewan',
+        'dataHewan',
+        'hewanTerbanyak'
+    ));
 }
     public function store(Request $request)
 {
