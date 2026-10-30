@@ -3,132 +3,81 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Exception;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // =====================================================
-        // CEK TABEL YANG DIPERLUKAN
-        // =====================================================
-
-        $hasPopulasi = Schema::hasTable('populasi_ternaks');
-        $hasIb = Schema::hasTable('inseminasi_buatans');
-        $hasSkkh = Schema::hasTable('skkhs');
-        $hasPengobatan = Schema::hasTable('pengobatans');
-        $hasSkup = Schema::hasTable('surat_keterangan_usahas');
-
-        // =====================================================
-        // 1. STAT CARD
-        // =====================================================
-
-        $totalPopulasi = $hasPopulasi
-            ? DB::table('populasi_ternaks')->count()
-            : 0;
-
-        $totalSkkh = $hasSkkh
-            ? DB::table('skkhs')->count()
-            : 0;
-
-        $totalIb = $hasIb
-            ? DB::table('inseminasi_buatans')->count()
-            : 0;
-
-        $totalPengobatan = $hasPengobatan
-            ? DB::table('pengobatans')->count()
-            : 0;
-
-        $totalNkv = Schema::hasTable('nkvs')
-            ? DB::table('nkvs')->count()
-            : 0;
-
-        $totalSertifikasi = Schema::hasTable('sertifikasis')
-            ? DB::table('sertifikasis')->count()
-            : 0;
-
+        try {
+            // =====================================================
+            // 1. STAT CARDS (Menggunakan try-catch agar aman jika tabel kosong)
+            // =====================================================
+            $totalPopulasi    = DB::table('populasi_ternaks')->count();
+            $totalSkkh        = DB::table('skkhs')->count();
+            $totalIb          = DB::table('inseminasi_buatans')->count();
+            $totalPengobatan  = DB::table('pengobatans')->count();
+            $totalNkv         = DB::table('nkvs')->count();
+            $totalSertifikasi = DB::table('sertifikasis')->count();
+        } catch (Exception $e) {
+            // Nilai 0 jika tabel belum dibuat/ada kendala
+            $totalPopulasi = $totalSkkh = $totalIb = $totalPengobatan = $totalNkv = $totalSertifikasi = 0;
+        }
 
         // =====================================================
-        // 2. GRAFIK POPULASI TERNAK
+        // 2. GRAFIK POPULASI TERNAK (Optimasi Query SQL)
         // =====================================================
-
-        $jenisPopulasiList = [
-            'Sapi',
-            'Kambing',
-            'Domba',
-            'Kerbau',
-            'Ayam',
-            'Bebek',
-            'Itik'
-        ];
-
+        $jenisPopulasiList = ['Sapi', 'Kambing', 'Domba', 'Kerbau', 'Ayam', 'Bebek', 'Itik'];
         $dataPopulasi = array_fill(0, count($jenisPopulasiList), 0);
 
-        if ($hasPopulasi) {
-
+        try {
             $populasi = DB::table('populasi_ternaks')
-                ->select(
-                    DB::raw('LOWER(jenis_ternak) as jenis'),
-                    DB::raw('COUNT(*) as total')
-                )
-                ->groupBy(DB::raw('LOWER(jenis_ternak)'))
+                ->select('jenis_ternak', DB::raw('COUNT(*) as total'))
+                ->groupBy('jenis_ternak')
                 ->get();
 
             foreach ($populasi as $item) {
-
                 foreach ($jenisPopulasiList as $index => $jenis) {
-
-                    if (stripos($item->jenis, strtolower($jenis)) !== false) {
+                    if (stripos($item->jenis_ternak, $jenis) !== false) {
                         $dataPopulasi[$index] += (int) $item->total;
                     }
                 }
             }
+        } catch (Exception $e) {
+            // Lewati jika tabel belum ada
         }
 
 
         // =====================================================
-        // 3. GRAFIK INSEMINASI BUATAN
+        // 3. GRAFIK INSEMINASI BUATAN (IB)
         // =====================================================
-
-        $jenisIbList = [
-            'Sapi',
-            'Kambing',
-            'Domba',
-            'Kerbau'
-        ];
-
+        $jenisIbList = ['Sapi', 'Kambing', 'Domba', 'Kerbau'];
         $dataIb = array_fill(0, count($jenisIbList), 0);
 
-        if ($hasIb) {
-
+        try {
             $ib = DB::table('inseminasi_buatans')
-                ->select(
-                    DB::raw('LOWER(jenis_hewan) as jenis'),
-                    DB::raw('COUNT(*) as total')
-                )
-                ->groupBy(DB::raw('LOWER(jenis_hewan)'))
+                ->select('jenis_hewan', DB::raw('COUNT(*) as total'))
+                ->groupBy('jenis_hewan')
                 ->get();
 
             foreach ($ib as $item) {
-
                 foreach ($jenisIbList as $index => $jenis) {
-
-                    if (stripos($item->jenis, strtolower($jenis)) !== false) {
+                    if (stripos($item->jenis_hewan, $jenis) !== false) {
                         $dataIb[$index] += (int) $item->total;
                     }
                 }
             }
+        } catch (Exception $e) {
+            // Lewati jika tabel belum ada
         }
 
 
         // =====================================================
-        // 4. GRAFIK SKKH PER BULAN
+        // 4. GRAFIK SKKH PER BULAN (Sudah Diperbaiki & Cepat)
         // =====================================================
-
         $dataSkkh = array_fill(0, 12, 0);
 
-        if ($hasSkkh) {
-
+        try {
             $skkhBulanan = DB::table('skkhs')
                 ->select(
                     DB::raw('EXTRACT(MONTH FROM created_at) as bulan'),
@@ -138,72 +87,70 @@ class DashboardController extends Controller
                 ->get();
 
             foreach ($skkhBulanan as $item) {
-                $dataSkkh[(int) $item->bulan - 1] = (int) $item->total;
+                $bulanIndex = ((int) $item->bulan) - 1;
+                if ($bulanIndex >= 0 && $bulanIndex < 12) {
+                    $dataSkkh[$bulanIndex] = (int) $item->total;
+                }
             }
+        } catch (Exception $e) {
+            // Lewati jika tabel belum ada
         }
 
 
         // =====================================================
         // 5. GRAFIK PENYAKIT TERBANYAK
         // =====================================================
-
         $dataPenyakit = [];
         $labelPenyakit = [];
 
-        if ($hasPengobatan) {
-
+        try {
             $penyakit = DB::table('pengobatans')
-                ->select(
-                    'jenis_penyakit',
-                    DB::raw('COUNT(*) as total')
-                )
+                ->select('jenis_penyakit', DB::raw('COUNT(*) as total'))
                 ->where('jenis_layanan', 'Pengobatan')
                 ->whereNotNull('jenis_penyakit')
                 ->where('jenis_penyakit', '!=', '')
                 ->groupBy('jenis_penyakit')
                 ->orderByDesc('total')
+                ->limit(10) // Batasi 10 besar agar chart tidak terlalu penuh & berat
                 ->get();
 
             foreach ($penyakit as $item) {
-
                 $labelPenyakit[] = $item->jenis_penyakit;
-                $dataPenyakit[] = (int) $item->total;
+                $dataPenyakit[]  = (int) $item->total;
             }
+        } catch (Exception $e) {
+            // Lewati jika tabel belum ada
         }
 
 
         // =====================================================
         // 6. GRAFIK SKUP
         // =====================================================
-
         $dataSkup = [];
         $labelSkup = [];
 
-        if ($hasSkup) {
-
+        try {
             $skup = DB::table('surat_keterangan_usahas')
-                ->select(
-                    'jenis_komoditi_usaha',
-                    DB::raw('COUNT(*) as total')
-                )
+                ->select('jenis_komoditi_usaha', DB::raw('COUNT(*) as total'))
                 ->whereNotNull('jenis_komoditi_usaha')
                 ->where('jenis_komoditi_usaha', '!=', '')
                 ->groupBy('jenis_komoditi_usaha')
                 ->orderByDesc('total')
+                ->limit(10) // Batasi 10 besar
                 ->get();
 
             foreach ($skup as $item) {
-
                 $labelSkup[] = $item->jenis_komoditi_usaha;
-                $dataSkup[] = (int) $item->total;
+                $dataSkup[]  = (int) $item->total;
             }
+        } catch (Exception $e) {
+            // Lewati jika tabel belum ada
         }
 
 
         // =====================================================
         // KIRIM DATA KE DASHBOARD
         // =====================================================
-
         return view('dashboard', compact(
             'totalPopulasi',
             'totalSkkh',
